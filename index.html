@@ -136,6 +136,14 @@
   .presente .emo{font-size:46px;line-height:1}
   .presente h4{font-size:21px;font-weight:600;margin:14px 0 4px;color:var(--azul-escuro)}
   .presente .valor{font-size:24px;color:var(--azul);font-weight:500}
+  .presente .stepper{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px}
+  .presente .stepper button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--azul);background:#fff;color:var(--azul-escuro);font-size:22px;line-height:1;cursor:pointer}
+  .presente .stepper button:active{background:var(--suave)}
+  .presente .stepper .qtd{min-width:28px;font-size:21px;font-weight:600;color:var(--azul-escuro)}
+  .carrinho{max-width:640px;margin:40px auto 0;background:var(--suave);border-radius:6px;padding:30px;text-align:center}
+  .carrinho-total{display:flex;align-items:center;justify-content:center;gap:12px;font-size:22px;margin-bottom:18px}
+  .carrinho-total strong{font-size:30px;color:var(--azul-escuro)}
+  #pagar-cartao:disabled{opacity:.5;cursor:not-allowed}
   .pix{max-width:640px;margin:46px auto 0;text-align:center;background:var(--suave);border-radius:6px;padding:32px}
   .pix .chave{font-size:24px;font-weight:600;color:var(--azul-escuro);word-break:break-all;margin:8px 0}
 
@@ -339,17 +347,20 @@
 <section id="presentes">
   <div class="wrap">
     <h2 class="titulo surge">Lista de presentes</h2>
-    <p class="sub surge">Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha uma cota abaixo e faça um Pix.</p>
-    <div class="presentes">
-      <div class="presente surge"><div class="emo">✈️</div><h4>Passagens da lua de mel</h4><div class="valor">R$ 300</div></div>
-      <div class="presente surge"><div class="emo">🍽️</div><h4>Jantar romântico</h4><div class="valor">R$ 150</div></div>
-      <div class="presente surge"><div class="emo">🛋️</div><h4>Sofá novo do casal</h4><div class="valor">R$ 250</div></div>
-      <div class="presente surge"><div class="emo">☕</div><h4>Café da manhã na cama</h4><div class="valor">R$ 80</div></div>
+    <p class="sub surge">Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha uma ou mais cotas abaixo.</p>
+    <div class="presentes" id="lista-presentes"></div>
+
+    <div class="carrinho surge" id="carrinho">
+      <div class="carrinho-total"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
+      <button class="botao" id="pagar-cartao" disabled>Pagar com cartão</button>
+      <p class="aviso" id="aviso-cartao"></p>
     </div>
+
     <div class="pix surge">
-      <p>Chave Pix</p>
+      <p>Ou prefere Pix? Chave Pix</p>
       <div class="chave" id="chave-pix">seuemail@exemplo.com</div>
       <p style="font-size:17px">Nome do titular · Banco</p>
+      <p style="font-size:17px;margin-top:6px">Valor a enviar: <strong id="pix-valor">o que escolher acima, ou o quanto quiser</strong></p>
       <button class="botao" id="copiar">Copiar chave Pix</button>
       <p class="aviso" id="aviso-pix"></p>
     </div>
@@ -395,8 +406,21 @@ const CASAMENTO = {
   noiva: "Luana",
   noivo: "João Pedro",
   data:  "2027-01-15T18:30:00-03:00",   // ano-mês-dia T hora (horário de Brasília)
-  whatsapp: "5586999999999"             // número que recebe as confirmações (55 + DDD + número)
+  whatsapp: "5586999999999",            // número que recebe as confirmações (55 + DDD + número)
+
+  // Endereço do servidorzinho (Cloudflare Worker) que gera o checkout do Mercado Pago.
+  // Enquanto estiver vazio, o botão "Pagar com cartão" fica desativado e avisa que falta configurar.
+  // Veja o arquivo mercadopago-worker.js e o guia PAGAMENTO-CARTAO.md neste repositório.
+  mpWorkerUrl: ""                       // ex.: "https://pagamento-luana-joao.seunome.workers.dev"
 };
+
+/* lista de presentes — edite valores, nomes e emojis aqui */
+const PRESENTES = [
+  {id:'passagens', emo:'✈️', nome:'Passagens da lua de mel', valor:300},
+  {id:'jantar',    emo:'🍽️', nome:'Jantar romântico',        valor:150},
+  {id:'sofa',      emo:'🛋️', nome:'Sofá novo do casal',      valor:250},
+  {id:'cafe',      emo:'☕', nome:'Café da manhã na cama',    valor:80},
+];
 
 /* nomes, monograma e data */
 document.getElementById('n1').textContent = CASAMENTO.noiva;
@@ -464,6 +488,63 @@ document.getElementById('votar').addEventListener('click',()=>{
   document.getElementById('enquete').classList.add('mostrar');
   aviso.textContent = 'Obrigado pelo seu voto! 💚';
   document.getElementById('votar').disabled = true;
+});
+
+/* ---- carrinho de presentes ---- */
+const carrinho = {}; // id -> quantidade
+const brl = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+const listaEl = document.getElementById('lista-presentes');
+PRESENTES.forEach(p=>{
+  const card = document.createElement('div');
+  card.className = 'presente surge';
+  card.innerHTML = `<div class="emo">${p.emo}</div><h4>${p.nome}</h4><div class="valor">${brl(p.valor)}</div>
+    <div class="stepper">
+      <button type="button" data-acao="menos" aria-label="Diminuir">−</button>
+      <span class="qtd">0</span>
+      <button type="button" data-acao="mais" aria-label="Adicionar">+</button>
+    </div>`;
+  const qtdEl = card.querySelector('.qtd');
+  const atualizarCard = () => { qtdEl.textContent = carrinho[p.id] || 0; };
+  card.querySelector('[data-acao="mais"]').addEventListener('click', ()=>{ carrinho[p.id]=(carrinho[p.id]||0)+1; atualizarCard(); atualizarCarrinho(); });
+  card.querySelector('[data-acao="menos"]').addEventListener('click', ()=>{ carrinho[p.id]=Math.max(0,(carrinho[p.id]||0)-1); atualizarCard(); atualizarCarrinho(); });
+  listaEl.appendChild(card); io.observe(card);
+});
+
+function totalCarrinho(){
+  return PRESENTES.reduce((soma,p)=> soma + (carrinho[p.id]||0)*p.valor, 0);
+}
+function atualizarCarrinho(){
+  const total = totalCarrinho();
+  document.getElementById('carrinho-valor').textContent = brl(total);
+  document.getElementById('pagar-cartao').disabled = total <= 0;
+  document.getElementById('pix-valor').textContent = total>0 ? brl(total) : 'o que escolher acima, ou o quanto quiser';
+}
+atualizarCarrinho();
+
+/* pagar com cartão — chama o servidor (Mercado Pago) com o total já pronto */
+document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
+  const aviso = document.getElementById('aviso-cartao');
+  const total = totalCarrinho();
+  if(total<=0) return;
+  if(!CASAMENTO.mpWorkerUrl){
+    aviso.textContent = 'O pagamento com cartão ainda está sendo configurado. Por enquanto, use o Pix abaixo — obrigado!';
+    return;
+  }
+  const itens = PRESENTES.filter(p=>carrinho[p.id]>0).map(p=>({title:p.nome, quantity:carrinho[p.id], unit_price:p.valor}));
+  aviso.textContent = 'Abrindo o pagamento…';
+  try{
+    const resp = await fetch(CASAMENTO.mpWorkerUrl, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({items: itens, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
+    });
+    if(!resp.ok) throw new Error('resposta '+resp.status);
+    const data = await resp.json();
+    if(!data.url) throw new Error('sem url');
+    window.location.href = data.url; // abre o checkout do Mercado Pago, já com o valor certo
+  }catch(e){
+    aviso.textContent = 'Não foi possível abrir o pagamento agora. Tente de novo em instantes ou use o Pix abaixo.';
+  }
 });
 
 /* copiar Pix */
