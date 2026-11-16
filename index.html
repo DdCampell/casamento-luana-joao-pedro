@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site de Casamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Montserrat:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --papel:#f4f3ee;
+    --nevoa:#e4e7df;
+    --azul:#5f7d68;
+    --azul-escuro:#1f3a2b;
+    --tinta:#26332b;
+    --linha:#6f8c77;
+    --suave:#ebede6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Montserrat',sans-serif;color:var(--tinta);background:var(--nevoa);font-size:19px;line-height:1.7}
+  a{color:inherit}
+  .script{font-family:'Pinyon Script',cursive;font-weight:400}
+
+  /* ---------- MENU ---------- */
+  header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+    padding:18px 5vw;transition:background .35s,box-shadow .35s}
+  header.solid{background:rgba(247,248,250,.94);backdrop-filter:blur(6px);box-shadow:0 1px 0 rgba(31,58,43,.12)}
+  .mono{font-family:'Pinyon Script',cursive;font-size:44px;line-height:1;text-decoration:none;color:var(--azul-escuro)}
+  nav ul{list-style:none;display:flex;gap:30px}
+  nav a{text-decoration:none;font-size:15px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:var(--azul-escuro);padding:6px 0;border-bottom:1px solid transparent}
+  nav a:hover{border-color:var(--azul)}
+  .burger{display:none;background:none;border:0;cursor:pointer;padding:8px}
+  .burger span{display:block;width:30px;height:2px;background:var(--azul-escuro);margin:7px 0}
+
+  /* ---------- CAPA ---------- */
+  .hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;overflow:hidden;background:var(--papel);padding:120px 20px 160px}
+  .hero .aquarela{position:absolute;inset:0;width:100%;height:100%}
+  .hero .flores{position:absolute;left:-40px;top:60px;width:min(560px,62vw);opacity:.95}
+  .hero .flores-dir{position:absolute;right:-60px;bottom:110px;width:min(320px,38vw);opacity:.75;transform:scaleX(-1) rotate(-12deg)}
+  .hero .borboleta{position:absolute;right:6vw;top:110px;width:min(190px,24vw);animation:voo 6s ease-in-out infinite}
+  @keyframes voo{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+  .hero h1{position:relative;font-family:'Pinyon Script',cursive;font-weight:400;color:var(--azul-escuro);
+    font-size:clamp(64px,11vw,150px);line-height:1.05;text-shadow:0 2px 18px rgba(255,255,255,.9)}
+  .hero h1 .e{display:inline-block;font-size:.7em;color:var(--azul);margin:0 .12em}
+  .hero .data{position:relative;margin-top:22px;font-size:clamp(22px,2.6vw,30px);letter-spacing:.18em;color:var(--azul);font-weight:500}
+  .hero .local-curto{position:relative;margin-top:6px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;color:var(--azul-escuro)}
+  .pincel{position:absolute;left:0;right:0;bottom:-2px;width:100%;height:150px}
+
+  /* ---------- SEÇÕES ---------- */
+  section{padding:90px 6vw}
+  .wrap{max-width:1060px;margin:0 auto}
+  .titulo{font-family:'Pinyon Script',cursive;font-weight:400;font-size:clamp(48px,6vw,72px);color:var(--azul-escuro);text-align:center;line-height:1.2}
+  .sub{text-align:center;font-size:21px;max-width:720px;margin:14px auto 0;color:#3a4a3f}
+  .ornamento{display:block;margin:18px auto 0;width:180px;height:24px}
+
+  /* contagem */
+  .contagem{text-align:center;padding-top:40px}
+  .contagem h2{font-weight:400;font-size:clamp(24px,3vw,32px);color:var(--azul-escuro)}
+  .relogio{display:flex;justify-content:center;gap:clamp(12px,3vw,30px);margin-top:34px;flex-wrap:wrap}
+  .caixa{width:clamp(120px,15vw,150px)}
+  .caixa .num{background:var(--azul);color:#fff;border-radius:4px;font-family:'Pinyon Script',cursive;font-size:clamp(54px,6vw,70px);
+    line-height:1.25;position:relative;padding:6px 0 0}
+  .caixa .num::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.55)}
+  .caixa .rot{margin-top:10px;font-size:17px;letter-spacing:.08em;color:var(--azul-escuro)}
+
+  /* história */
+  .historia{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:50px}
+  .moldura{aspect-ratio:4/5;border-radius:4px;background:linear-gradient(160deg,#eef0ea,#cfd8cc);position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 20px 50px -25px rgba(31,58,43,.45)}
+  .moldura img{width:100%;height:100%;object-fit:cover}
+  .moldura .vazio{text-align:center;color:var(--azul);font-size:19px;padding:20px}
+  .moldura .vazio svg{width:120px;display:block;margin:0 auto 14px}
+  .historia p{font-size:20px;margin-bottom:18px}
+  .historia p:first-letter{font-family:'Pinyon Script',cursive;font-size:3.1em;float:left;line-height:.9;margin:6px 10px 0 0;color:var(--azul)}
+  .historia p+p:first-letter{all:unset}
+
+  /* grande dia */
+  .claro{background:var(--papel)}
+  .cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:30px;margin-top:50px}
+  .cartao{background:#fff;border:1px solid #dde2d8;border-radius:6px;padding:40px 32px;text-align:center;position:relative}
+  .cartao svg.icone{width:62px;height:62px;margin-bottom:10px}
+  .cartao h3{font-family:'Pinyon Script',cursive;font-weight:400;font-size:46px;color:var(--azul-escuro);line-height:1.2}
+  .cartao .hora{font-size:24px;font-weight:600;color:var(--azul);letter-spacing:.06em;margin:8px 0}
+  .cartao p{font-size:19px}
+  .botao{display:inline-block;margin-top:20px;background:var(--azul);color:#fff;text-decoration:none;border:0;cursor:pointer;
+    font-family:inherit;font-size:17px;letter-spacing:.1em;text-transform:uppercase;padding:16px 30px;border-radius:3px;transition:background .2s}
+  .botao:hover{background:var(--azul-escuro)}
+  .botao.contorno{background:transparent;color:var(--azul-escuro);border:1.5px solid var(--azul)}
+  .botao.contorno:hover{background:var(--azul);color:#fff}
+  .traje{text-align:center;margin-top:40px;font-size:20px}
+  .traje strong{color:var(--azul-escuro)}
+
+  /* enquete */
+  .enquete{max-width:760px;margin:40px auto 0;background:rgba(255,255,255,.35);border:1px solid rgba(95,125,104,.3);border-radius:6px}
+  .opcao{display:flex;align-items:center;gap:16px;padding:20px 26px;border-bottom:1px solid rgba(95,125,104,.25);cursor:pointer;font-size:21px;position:relative;overflow:hidden}
+  .opcao:last-child{border-bottom:0}
+  .opcao input{width:24px;height:24px;accent-color:var(--azul);position:relative;z-index:1}
+  .opcao span{position:relative;z-index:1}
+  .opcao .barra{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(95,125,104,.18);transition:width .8s ease}
+  .opcao .pct{margin-left:auto;font-weight:600;color:var(--azul-escuro);position:relative;z-index:1;opacity:0;transition:opacity .4s}
+  .mostrar .pct{opacity:1}
+  .centro{text-align:center}
+  .aviso{margin-top:16px;font-size:19px;color:var(--azul-escuro);min-height:30px}
+
+  /* galeria */
+  .galeria{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:46px}
+  .galeria .foto{aspect-ratio:3/4;cursor:zoom-in;box-shadow:0 16px 40px -22px rgba(31,58,43,.5);border-radius:3px;overflow:hidden;background:linear-gradient(145deg,#f0f2ec,#d0d9cd);display:flex;align-items:center;justify-content:center}
+  .galeria .foto svg{width:55%;opacity:.55}
+  .galeria .foto img{width:100%;height:100%;object-fit:cover}
+
+  /* presentes */
+  .presentes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px;margin-top:46px}
+  .presente{background:#fff;border:1px solid #dde2d8;border-radius:6px;padding:30px 24px;text-align:center}
+  .presente .emo{font-size:46px;line-height:1}
+  .presente h4{font-size:21px;font-weight:600;margin:14px 0 4px;color:var(--azul-escuro)}
+  .presente .valor{font-size:24px;color:var(--azul);font-weight:500}
+  .pix{max-width:640px;margin:46px auto 0;text-align:center;background:var(--suave);border-radius:6px;padding:32px}
+  .pix .chave{font-size:24px;font-weight:600;color:var(--azul-escuro);word-break:break-all;margin:8px 0}
+
+  /* rsvp */
+  form{max-width:680px;margin:40px auto 0;display:grid;gap:22px}
+  label{display:block;font-size:18px;font-weight:500;margin-bottom:8px;color:var(--azul-escuro)}
+  input[type=text],input[type=number],textarea,select{width:100%;font-family:inherit;font-size:20px;padding:16px 18px;border:1.5px solid #bfc9bb;border-radius:4px;background:#fff;color:var(--tinta)}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--azul);border-color:var(--azul)}
+  .linha{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+  .radios{display:flex;gap:30px;flex-wrap:wrap;font-size:20px}
+  .radios label{display:flex;align-items:center;gap:10px;font-weight:400;cursor:pointer;margin:0;color:var(--tinta)}
+  .radios input{width:22px;height:22px;accent-color:var(--azul)}
+
+  footer{text-align:center;padding:60px 20px 50px;border-top:1px solid rgba(31,58,43,.15)}
+  footer .mono{font-size:64px;display:block}
+  footer p{font-size:18px;color:var(--azul-escuro)}
+  .topo{display:inline-block;margin-top:18px;font-size:15px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;color:var(--azul)}
+
+  #lightbox{position:fixed;inset:0;z-index:100;background:rgba(20,32,25,.9);display:none;align-items:center;justify-content:center;cursor:zoom-out;padding:30px}
+  #lightbox.on{display:flex}
+  #lightbox img{max-width:100%;max-height:100%;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  #lightbox span{position:absolute;top:20px;right:26px;color:#fff;font-size:20px;letter-spacing:.08em}
+  .surge{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s ease}
+  .surge.vis{opacity:1;transform:none}
+
+  @media (max-width:860px){
+    body{font-size:18px}
+    nav ul{position:fixed;inset:76px 0 auto 0;flex-direction:column;gap:0;background:var(--papel);padding:10px 0;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);display:none}
+    nav ul.aberto{display:flex}
+    nav li a{display:block;padding:16px 7vw;font-size:17px}
+    .burger{display:block}
+    .historia{grid-template-columns:1fr}
+    .galeria{grid-template-columns:1fr;max-width:460px;margin-left:auto;margin-right:auto}
+    .linha{grid-template-columns:1fr}
+    .hero .flores{top:80px;opacity:.55}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== MENU ===================== -->
+<header id="topo">
+  <a href="#inicio" class="mono" id="monograma">L + J</a>
+  <nav>
+    <button class="burger" aria-label="Abrir menu" onclick="document.querySelector('nav ul').classList.toggle('aberto')"><span></span><span></span><span></span></button>
+    <ul>
+      <li><a href="#historia">Nossa História</a></li>
+      <li><a href="#grande-dia">O Grande Dia</a></li>
+      <li><a href="#presentes">Presentes</a></li>
+      <li><a href="#confirmar">Confirmar Presença</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ===================== CAPA ===================== -->
+<section class="hero" id="inicio">
+  <!-- fundo aquarela -->
+  <svg class="aquarela" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <filter id="agua" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="4" seed="7"/>
+        <feDisplacementMap in="SourceGraphic" scale="120"/>
+        <feGaussianBlur stdDeviation="22"/>
+      </filter>
+      <filter id="grao"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .42  0 0 0 0 .36  0 0 0 .06 0"/></filter>
+    </defs>
+    <rect width="1200" height="800" fill="#f4f3ee"/>
+    <g filter="url(#agua)" opacity=".85">
+      <ellipse cx="760" cy="330" rx="420" ry="190" fill="#d2dccf"/>
+      <ellipse cx="1050" cy="250" rx="220" ry="160" fill="#b9c9ba"/>
+      <ellipse cx="300" cy="520" rx="330" ry="150" fill="#dde4da"/>
+      <ellipse cx="900" cy="560" rx="260" ry="120" fill="#c8d4c5"/>
+      <ellipse cx="560" cy="200" rx="200" ry="90" fill="#e7ebe3"/>
+    </g>
+    <rect width="1200" height="800" filter="url(#grao)"/>
+  </svg>
+
+  <!-- flores em traço (desenho original) -->
+  <svg class="flores" viewBox="0 0 500 520" fill="none" stroke="#5f7d68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- caules -->
+    <path d="M40 520 C90 420 150 330 230 250"/>
+    <path d="M0 470 C70 400 120 360 200 330"/>
+    <path d="M120 520 C150 450 220 400 300 380"/>
+    <!-- folhas -->
+    <path d="M85 430 C40 410 20 370 30 330 C70 350 95 390 85 430Z"/><path d="M85 430 C60 395 45 365 30 330"/>
+    <path d="M150 350 C170 300 215 285 250 295 C230 330 195 355 150 350Z"/><path d="M150 350 C190 330 220 310 250 295"/>
+    <path d="M60 455 C20 470 -5 500 -10 520"/>
+    <path d="M210 410 C250 440 300 440 330 420 C300 395 255 390 210 410Z"/><path d="M210 410 C250 418 290 420 330 420"/>
+    <!-- lírio grande -->
+    <g transform="translate(230 250)">
+      <path d="M0 0 C-30 -40 -40 -110 -10 -170 C10 -120 20 -60 0 0Z"/>
+      <path d="M-6 -30 C-14 -80 -14 -120 -10 -170"/>
+      <path d="M0 0 C40 -30 110 -50 160 -20 C110 0 50 10 0 0Z"/>
+      <path d="M30 -16 C80 -26 120 -26 160 -20"/>
+      <path d="M0 0 C-50 -10 -120 -40 -140 -100 C-90 -90 -40 -50 0 0Z"/>
+      <path d="M-30 -20 C-70 -45 -110 -70 -140 -100"/>
+      <path d="M0 0 C30 -60 80 -120 140 -130 C120 -80 70 -30 0 0Z"/>
+      <path d="M20 -30 C60 -70 100 -110 140 -130"/>
+      <path d="M0 0 C-60 20 -110 60 -120 110 C-70 90 -30 50 0 0Z"/>
+      <!-- estames -->
+      <path d="M0 0 C10 -40 30 -70 50 -90"/><circle cx="52" cy="-93" r="4"/>
+      <path d="M0 0 C-5 -45 -5 -80 10 -110"/><circle cx="11" cy="-114" r="4"/>
+      <path d="M0 0 C25 -25 55 -40 80 -50"/><circle cx="84" cy="-52" r="4"/>
+    </g>
+    <!-- botões -->
+    <g transform="translate(300 380) rotate(30)">
+      <path d="M0 0 C-14 -30 -10 -70 0 -90 C10 -70 14 -30 0 0Z"/><path d="M0 0 C-4 -30 -2 -60 0 -90"/>
+      <path d="M-6 -10 C-20 -20 -24 -36 -20 -46"/><path d="M6 -10 C20 -20 24 -36 20 -46"/>
+    </g>
+    <g transform="translate(200 330) rotate(-50)">
+      <path d="M0 0 C-12 -26 -9 -60 0 -78 C9 -60 12 -26 0 0Z"/><path d="M0 0 C-3 -26 -2 -52 0 -78"/>
+    </g>
+    <!-- flor redonda (dália) -->
+    <g transform="translate(110 470)">
+      <circle r="10"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(40)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(80)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(120)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(160)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(200)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(240)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(280)"/>
+      <path d="M0 -10 C-10 -30 -6 -46 0 -52 C6 -46 10 -30 0 -10Z" transform="rotate(320)"/>
+      <path d="M0 -14 C-7 -24 -4 -32 0 -34 C4 -32 7 -24 0 -14Z" transform="rotate(20)"/>
+      <path d="M0 -14 C-7 -24 -4 -32 0 -34 C4 -32 7 -24 0 -14Z" transform="rotate(100)"/>
+      <path d="M0 -14 C-7 -24 -4 -32 0 -34 C4 -32 7 -24 0 -14Z" transform="rotate(180)"/>
+      <path d="M0 -14 C-7 -24 -4 -32 0 -34 C4 -32 7 -24 0 -14Z" transform="rotate(260)"/>
+    </g>
+  </svg>
+
+  <svg class="flores-dir" viewBox="0 0 300 300" fill="none" stroke="#6f8c77" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+    <path d="M20 290 C80 220 140 170 230 120"/>
+    <path d="M80 225 C60 190 70 150 100 130 C110 165 105 200 80 225Z"/><path d="M80 225 C85 190 92 160 100 130"/>
+    <path d="M140 172 C170 150 210 150 235 165 C205 185 170 188 140 172Z"/>
+    <path d="M190 140 C180 105 195 70 225 55 C230 90 215 120 190 140Z"/>
+    <g transform="translate(232 118)"><circle r="7"/>
+      <path d="M0 -7 C-9 -22 -5 -34 0 -38 C5 -34 9 -22 0 -7Z"/><path d="M0 -7 C-9 -22 -5 -34 0 -38 C5 -34 9 -22 0 -7Z" transform="rotate(72)"/>
+      <path d="M0 -7 C-9 -22 -5 -34 0 -38 C5 -34 9 -22 0 -7Z" transform="rotate(144)"/><path d="M0 -7 C-9 -22 -5 -34 0 -38 C5 -34 9 -22 0 -7Z" transform="rotate(216)"/>
+      <path d="M0 -7 C-9 -22 -5 -34 0 -38 C5 -34 9 -22 0 -7Z" transform="rotate(288)"/></g>
+  </svg>
+
+  <!-- borboleta (desenho original) -->
+  <svg class="borboleta" viewBox="0 0 200 170" fill="none" stroke="#3e5a47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M100 40 C96 70 96 110 100 140" stroke-width="3"/>
+    <path d="M100 42 C92 26 84 16 74 10"/><path d="M100 42 C108 26 116 16 126 10"/>
+    <path d="M98 60 C80 20 30 5 15 25 C2 45 30 85 96 88Z" fill="rgba(160,184,165,.35)"/>
+    <path d="M96 88 C60 90 30 110 35 135 C42 160 80 150 98 110Z" fill="rgba(200,214,200,.4)"/>
+    <path d="M102 60 C120 20 170 5 185 25 C198 45 170 85 104 88Z" fill="rgba(160,184,165,.35)"/>
+    <path d="M104 88 C140 90 170 110 165 135 C158 160 120 150 102 110Z" fill="rgba(200,214,200,.4)"/>
+    <path d="M96 70 C70 55 45 40 28 30"/><path d="M96 78 C70 72 45 68 25 60"/>
+    <path d="M104 70 C130 55 155 40 172 30"/><path d="M104 78 C130 72 155 68 175 60"/>
+    <path d="M97 98 C80 110 60 125 50 140"/><path d="M103 98 C120 110 140 125 150 140"/>
+    <circle cx="45" cy="35" r="5"/><circle cx="155" cy="35" r="5"/>
+    <circle cx="55" cy="130" r="4"/><circle cx="145" cy="130" r="4"/>
+  </svg>
+
+  <h1 id="nomes"><span id="n1">Luana</span> <span class="e">&amp;</span> <span id="n2">João Pedro</span></h1>
+  <p class="data" id="data-curta">15.01.2027</p>
+  <p class="local-curto" id="cidade">Teresina · Piauí</p>
+
+  <!-- borda em pincelada -->
+  <svg class="pincel" viewBox="0 0 1200 150" preserveAspectRatio="none" aria-hidden="true">
+    <defs><filter id="borda"><feTurbulence type="fractalNoise" baseFrequency=".02 .25" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="30"/></filter></defs>
+    <path filter="url(#borda)" d="M-20 90 C200 60 380 110 600 80 C820 50 1000 100 1220 70 L1220 170 L-20 170Z" fill="#e4e7df"/>
+  </svg>
+</section>
+
+<!-- ===================== CONTAGEM ===================== -->
+<section class="contagem">
+  <h2>Contagem regressiva para o grande dia</h2>
+  <div class="relogio">
+    <div class="caixa"><div class="num" id="dias">0</div><div class="rot">Dias</div></div>
+    <div class="caixa"><div class="num" id="horas">0</div><div class="rot">Horas</div></div>
+    <div class="caixa"><div class="num" id="minutos">0</div><div class="rot">Minutos</div></div>
+    <div class="caixa"><div class="num" id="segundos">0</div><div class="rot">Segundos</div></div>
+  </div>
+</section>
+
+<!-- ===================== BOAS-VINDAS / HISTÓRIA ===================== -->
+<section id="historia">
+  <div class="wrap">
+    <h2 class="titulo surge">Sejam bem-vindos ao nosso site!</h2>
+    <p class="sub surge">A melhor forma de compartilhar esse momento com vocês é vivendo juntos esse sonho.</p>
+    <svg class="ornamento" viewBox="0 0 180 24" fill="none" stroke="#5f7d68" stroke-width="1.3"><path d="M0 12 H70 M110 12 H180"/><path d="M90 4 C80 4 78 20 90 20 C102 20 100 4 90 4Z"/><path d="M78 12 C84 8 86 8 90 12 C94 8 96 8 102 12"/></svg>
+
+    <div class="historia">
+      <div class="moldura surge" id="foto-casal">
+        <img src="casal.jpg" alt="Luana e João Pedro sorrindo, com a aliança de noivado" style="object-position:50% 70%">
+      </div>
+      <div class="surge">
+        <h3 class="titulo" style="text-align:left;font-size:56px">Nossa história</h3>
+        <p>Nos conhecemos de um jeito que nenhum dos dois esperava, e desde aquele primeiro encontro a gente soube que tinha algo especial ali. Escreva aqui como vocês se conheceram.</p>
+        <p>Depois de anos de companheirismo, risadas e sonhos divididos, chegou a hora de dizer "sim" diante das pessoas que mais amamos. Conte aqui o momento do pedido.</p>
+        <p>Preparamos este cantinho para reunir tudo o que vocês precisam saber sobre o nosso grande dia. Esperamos vocês!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== GRANDE DIA ===================== -->
+<section class="claro" id="grande-dia">
+  <div class="wrap">
+    <h2 class="titulo surge">O grande dia</h2>
+    <p class="sub surge">Anote na agenda e venha celebrar com a gente.</p>
+    <div class="cartoes">
+      <div class="cartao surge">
+        <svg class="icone" viewBox="0 0 64 64" fill="none" stroke="#5f7d68" stroke-width="1.6" stroke-linejoin="round"><path d="M32 6 V16 M27 11 H37"/><path d="M14 58 V30 L32 18 L50 30 V58Z"/><path d="M26 58 V44 C26 38 38 38 38 44 V58"/><path d="M6 58 H58"/></svg>
+        <h3>Cerimônia</h3>
+        <div class="hora" id="hora-cerimonia">18h30</div>
+        <p><strong>Paróquia Militar de São Sebastião</strong><br>Av. São Raimundo, Bairro Cristo Rei<br>Teresina – PI</p>
+        <a class="botao contorno" href="https://www.google.com/maps/search/?api=1&query=Par%C3%B3quia+Militar+de+S%C3%A3o+Sebasti%C3%A3o+Av+S%C3%A3o+Raimundo+Cristo+Rei+Teresina+PI" target="_blank" rel="noopener">Ver no mapa</a>
+      </div>
+      <div class="cartao surge">
+        <svg class="icone" viewBox="0 0 64 64" fill="none" stroke="#5f7d68" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8 H30 L28 26 C27 32 21 32 20 26Z"/><path d="M24 31 V52 M17 54 H31"/><path d="M34 8 H46 L44 26 C43 32 37 32 36 26Z"/><path d="M40 31 V52 M33 54 H47"/><path d="M19 18 H29 M35 18 H45"/></svg>
+        <h3>Recepção</h3>
+        <div class="hora">Após a cerimônia</div>
+        <p><strong>Gláucia Buffet</strong><br>Av. Rochelane Fortes Said, 3323, Gurupi<br>Teresina – PI</p>
+        <a class="botao contorno" href="https://www.google.com/maps/search/?api=1&query=Gl%C3%A1ucia+Buffet+Av+Rochelane+Fortes+Said+3323+Gurupi+Teresina+PI" target="_blank" rel="noopener">Ver no mapa</a>
+      </div>
+    </div>
+    <p class="traje surge">Traje: <strong>Esporte fino</strong> · Pedimos com carinho que evitem roupas brancas.</p>
+  </div>
+</section>
+
+<!-- ===================== ENQUETE ===================== -->
+<section>
+  <div class="wrap">
+    <h2 class="titulo surge">Onde devemos passar a lua de mel?</h2>
+    <div class="enquete" id="enquete">
+      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="0"><span>Fernando de Noronha</span><b class="pct"></b></label>
+      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="1"><span>Gramado</span><b class="pct"></b></label>
+      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="2"><span>Paris</span><b class="pct"></b></label>
+      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="3"><span>Cancún</span><b class="pct"></b></label>
+    </div>
+    <div class="centro"><button class="botao" id="votar">Enviar voto</button><p class="aviso" id="aviso-voto"></p></div>
+  </div>
+</section>
+
+<!-- ===================== GALERIA ===================== -->
+<section class="claro">
+  <div class="wrap">
+    <h2 class="titulo surge">Nossos momentos</h2>
+    <div class="galeria" id="galeria"></div>
+  </div>
+</section>
+
+<!-- ===================== PRESENTES ===================== -->
+<section id="presentes">
+  <div class="wrap">
+    <h2 class="titulo surge">Lista de presentes</h2>
+    <p class="sub surge">Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha uma cota abaixo e faça um Pix.</p>
+    <div class="presentes">
+      <div class="presente surge"><div class="emo">✈️</div><h4>Passagens da lua de mel</h4><div class="valor">R$ 300</div></div>
+      <div class="presente surge"><div class="emo">🍽️</div><h4>Jantar romântico</h4><div class="valor">R$ 150</div></div>
+      <div class="presente surge"><div class="emo">🛋️</div><h4>Sofá novo do casal</h4><div class="valor">R$ 250</div></div>
+      <div class="presente surge"><div class="emo">☕</div><h4>Café da manhã na cama</h4><div class="valor">R$ 80</div></div>
+    </div>
+    <div class="pix surge">
+      <p>Chave Pix</p>
+      <div class="chave" id="chave-pix">seuemail@exemplo.com</div>
+      <p style="font-size:17px">Nome do titular · Banco</p>
+      <button class="botao" id="copiar">Copiar chave Pix</button>
+      <p class="aviso" id="aviso-pix"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RSVP ===================== -->
+<section class="claro" id="confirmar">
+  <div class="wrap">
+    <h2 class="titulo surge">Confirme sua presença</h2>
+    <p class="sub surge">Por favor, confirme até <strong id="prazo">15 de dezembro de 2026</strong>. Ao enviar, abriremos o WhatsApp com sua resposta prontinha.</p>
+    <form id="rsvp">
+      <div class="linha">
+        <div><label for="nome">Seu nome completo</label><input type="text" id="nome" required placeholder="Ex.: Maria da Silva"></div>
+        <div><label for="qtd">Nº de pessoas</label><input type="number" id="qtd" min="1" max="10" value="1"></div>
+      </div>
+      <div>
+        <label>Você vai?</label>
+        <div class="radios">
+          <label><input type="radio" name="vai" value="Sim, estarei lá!" checked> Sim, estarei lá!</label>
+          <label><input type="radio" name="vai" value="Infelizmente não poderei ir"> Não poderei ir</label>
+        </div>
+      </div>
+      <div><label for="msg">Deixe um recado para os noivos (opcional)</label><textarea id="msg" rows="4" placeholder="Escreva aqui seu carinho…"></textarea></div>
+      <div class="centro"><button class="botao" type="submit">Confirmar pelo WhatsApp</button><p class="aviso" id="aviso-rsvp"></p></div>
+    </form>
+  </div>
+</section>
+
+<div id="lightbox" aria-hidden="true"><img alt=""><span>✕ Fechar</span></div>
+
+<footer>
+  <span class="mono" id="mono-rodape">L + J</span>
+  <p>Com amor, esperamos por vocês.</p>
+  <a href="#inicio" class="topo">↑ Voltar ao topo</a>
+</footer>
+
+<script>
+/* ============================================================
+   CONFIGURAÇÕES — troque aqui os dados do casal
+   ============================================================ */
+const CASAMENTO = {
+  noiva: "Luana",
+  noivo: "João Pedro",
+  data:  "2027-01-15T18:30:00-03:00",   // ano-mês-dia T hora (horário de Brasília)
+  whatsapp: "5586999999999"             // número que recebe as confirmações (55 + DDD + número)
+};
+
+/* nomes, monograma e data */
+document.getElementById('n1').textContent = CASAMENTO.noiva;
+document.getElementById('n2').textContent = CASAMENTO.noivo;
+const mono = CASAMENTO.noiva[0] + ' + ' + CASAMENTO.noivo[0];
+document.getElementById('monograma').textContent = mono;
+document.getElementById('mono-rodape').textContent = mono;
+document.title = CASAMENTO.noiva + ' & ' + CASAMENTO.noivo + ' · Casamento';
+const alvo = new Date(CASAMENTO.data);
+const p2 = n => String(n).padStart(2,'0');
+document.getElementById('data-curta').textContent = p2(alvo.getDate())+'.'+p2(alvo.getMonth()+1)+'.'+alvo.getFullYear();
+
+/* contagem regressiva */
+function tick(){
+  let d = Math.max(0, alvo - new Date());
+  const dias = Math.floor(d/864e5); d -= dias*864e5;
+  const h = Math.floor(d/36e5); d -= h*36e5;
+  const m = Math.floor(d/6e4); d -= m*6e4;
+  const s = Math.floor(d/1e3);
+  dias_.textContent = dias; horas_.textContent = h; min_.textContent = m; seg_.textContent = s;
+}
+const dias_=document.getElementById('dias'),horas_=document.getElementById('horas'),min_=document.getElementById('minutos'),seg_=document.getElementById('segundos');
+tick(); setInterval(tick,1000);
+
+/* menu fica sólido ao rolar */
+const header = document.getElementById('topo');
+addEventListener('scroll',()=>header.classList.toggle('solid', scrollY>60));
+document.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',()=>document.querySelector('nav ul').classList.remove('aberto')));
+
+/* animação ao aparecer */
+const io = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.surge').forEach(el=>io.observe(el));
+
+/* galeria (espaços para fotos) */
+const flor = '<svg viewBox="0 0 100 100" fill="none" stroke="#5f7d68" stroke-width="1.6"><circle cx="50" cy="50" r="7"/>'+
+  [0,60,120,180,240,300].map(r=>`<path transform="rotate(${r} 50 50)" d="M50 43 C40 30 44 16 50 12 C56 16 60 30 50 43Z"/>`).join('')+'</svg>';
+const FOTOS = [
+  {src:'momento1.jpg', alt:'Luana e João Pedro no quadriciclo nas dunas, ao pôr do sol'},
+  {src:'momento2.jpg', alt:'O casal de costas admirando o pôr do sol nas dunas'},
+  {src:'momento3.jpg', alt:'Mãos do casal com as alianças, com a lagoa e o pôr do sol ao fundo'}
+];
+const gal = document.getElementById('galeria');
+FOTOS.forEach(ft=>{ const f=document.createElement('div'); f.className='foto surge';
+  f.innerHTML=`<img src="${ft.src}" alt="${ft.alt}" loading="lazy">`;
+  f.onclick=()=>{ lbImg.src=ft.src; lbImg.alt=ft.alt; lb.classList.add('on'); };
+  gal.appendChild(f); io.observe(f); });
+const lb=document.getElementById('lightbox'), lbImg=lb.querySelector('img');
+lb.onclick=()=>lb.classList.remove('on');
+addEventListener('keydown',e=>{ if(e.key==='Escape') lb.classList.remove('on'); });
+
+/* enquete */
+const votosBase = [12, 7, 9, 5];
+document.getElementById('votar').addEventListener('click',()=>{
+  const sel = document.querySelector('input[name=lua]:checked');
+  const aviso = document.getElementById('aviso-voto');
+  if(!sel){ aviso.textContent = 'Escolha uma opção antes de votar 😊'; return; }
+  const v = votosBase.slice(); v[+sel.value]++;
+  const tot = v.reduce((a,b)=>a+b,0);
+  document.querySelectorAll('.opcao').forEach((op,i)=>{
+    const p = Math.round(v[i]/tot*100);
+    op.querySelector('.barra').style.width = p+'%';
+    op.querySelector('.pct').textContent = p+'%';
+  });
+  document.getElementById('enquete').classList.add('mostrar');
+  aviso.textContent = 'Obrigado pelo seu voto! 💚';
+  document.getElementById('votar').disabled = true;
+});
+
+/* copiar Pix */
+document.getElementById('copiar').addEventListener('click',async()=>{
+  const chave = document.getElementById('chave-pix').textContent.trim();
+  const aviso = document.getElementById('aviso-pix');
+  try{ await navigator.clipboard.writeText(chave); aviso.textContent='Chave copiada! Muito obrigado 💚'; }
+  catch(e){ aviso.textContent='Não deu para copiar automaticamente. Selecione a chave acima e copie.'; }
+});
+
+/* confirmação pelo WhatsApp */
+document.getElementById('rsvp').addEventListener('submit',e=>{
+  e.preventDefault();
+  const nome = document.getElementById('nome').value.trim();
+  const qtd = document.getElementById('qtd').value;
+  const vai = document.querySelector('input[name=vai]:checked').value;
+  const msg = document.getElementById('msg').value.trim();
+  let texto = `Olá, ${CASAMENTO.noiva} e ${CASAMENTO.noivo}! Confirmação de presença:\n\nNome: ${nome}\nResposta: ${vai}\nPessoas: ${qtd}`;
+  if(msg) texto += `\nRecado: ${msg}`;
+  const url = `https://wa.me/${CASAMENTO.whatsapp}?text=${encodeURIComponent(texto)}`;
+  const aviso = document.getElementById('aviso-rsvp');
+  aviso.innerHTML = `Quase lá! <a href="${url}" target="_blank" rel="noopener" style="font-weight:600">Toque aqui para enviar no WhatsApp</a>.`;
+  const a = document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener'; a.click();
+});
+</script>
+</body>
+</html>
