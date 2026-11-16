@@ -40,8 +40,18 @@
   .hero .aquarela{position:absolute;inset:0;width:100%;height:100%}
   .hero .flores{position:absolute;left:-40px;top:60px;width:min(560px,62vw);opacity:.95}
   .hero .flores-dir{position:absolute;right:-60px;bottom:110px;width:min(320px,38vw);opacity:.75;transform:scaleX(-1) rotate(-12deg)}
-  .hero .borboleta{position:absolute;right:6vw;top:110px;width:min(190px,24vw);animation:voo 6s ease-in-out infinite}
-  @keyframes voo{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+  /* borboleta animada: voa pelo fundo e bate as asas */
+  .voo-borboleta{position:absolute;left:0;top:0;width:min(170px,24vw);z-index:0;pointer-events:none;
+    offset-path:path("M 1050 210 C 900 130, 760 290, 640 220 S 380 140, 260 270 S 120 480, 330 530 S 760 570, 900 440 S 1180 300, 1050 210");
+    offset-rotate:0deg;animation:rota 38s linear infinite}
+  .voo-borboleta .borboleta{display:block;width:100%;animation:balanco 2.6s ease-in-out infinite}
+  .borboleta .asa{transform-box:view-box;transform-origin:100px 85px;animation:bater .5s ease-in-out infinite alternate}
+  @keyframes bater{from{transform:scaleX(1)}to{transform:scaleX(.18)}}
+  @keyframes balanco{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-10px) rotate(6deg)}}
+  @keyframes rota{from{offset-distance:0%}to{offset-distance:100%}}
+  @media (max-width:860px){.voo-borboleta{offset-path:path("M 270 140 C 190 90, 60 170, 100 270 S 280 430, 240 530 S 40 570, 60 430 S 330 230, 270 140")}}
+  @media (prefers-reduced-motion:reduce){.voo-borboleta,.voo-borboleta .borboleta,.borboleta .asa{animation:none}.voo-borboleta{offset-path:none;left:auto;right:6vw;top:110px}}
+  .hero h1,.hero .data,.hero .local-curto{z-index:1}
   .hero h1{position:relative;font-family:'Monsieur La Doulaise',cursive;font-weight:400;color:var(--azul-escuro);
     font-size:clamp(72px,12vw,170px);line-height:1.15;letter-spacing:.01em;text-shadow:0 2px 18px rgba(255,255,255,.9)}
   .hero h1 #n1,.hero h1 #n2{white-space:nowrap;display:inline-block}
@@ -262,19 +272,24 @@
   </svg>
 
   <!-- borboleta (desenho original) -->
-  <svg class="borboleta" viewBox="0 0 200 170" fill="none" stroke="#3e5a47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <div class="voo-borboleta" aria-hidden="true"><svg class="borboleta" viewBox="0 0 200 170" fill="none" stroke="#3e5a47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <g class="asa esq">
+      <path d="M98 60 C80 20 30 5 15 25 C2 45 30 85 96 88Z" fill="rgba(160,184,165,.35)"/>
+      <path d="M96 88 C60 90 30 110 35 135 C42 160 80 150 98 110Z" fill="rgba(200,214,200,.4)"/>
+      <path d="M96 70 C70 55 45 40 28 30"/><path d="M96 78 C70 72 45 68 25 60"/>
+      <path d="M97 98 C80 110 60 125 50 140"/>
+      <circle cx="45" cy="35" r="5"/><circle cx="55" cy="130" r="4"/>
+    </g>
+    <g class="asa dir">
+      <path d="M102 60 C120 20 170 5 185 25 C198 45 170 85 104 88Z" fill="rgba(160,184,165,.35)"/>
+      <path d="M104 88 C140 90 170 110 165 135 C158 160 120 150 102 110Z" fill="rgba(200,214,200,.4)"/>
+      <path d="M104 70 C130 55 155 40 172 30"/><path d="M104 78 C130 72 155 68 175 60"/>
+      <path d="M103 98 C120 110 140 125 150 140"/>
+      <circle cx="155" cy="35" r="5"/><circle cx="145" cy="130" r="4"/>
+    </g>
     <path d="M100 40 C96 70 96 110 100 140" stroke-width="3"/>
     <path d="M100 42 C92 26 84 16 74 10"/><path d="M100 42 C108 26 116 16 126 10"/>
-    <path d="M98 60 C80 20 30 5 15 25 C2 45 30 85 96 88Z" fill="rgba(160,184,165,.35)"/>
-    <path d="M96 88 C60 90 30 110 35 135 C42 160 80 150 98 110Z" fill="rgba(200,214,200,.4)"/>
-    <path d="M102 60 C120 20 170 5 185 25 C198 45 170 85 104 88Z" fill="rgba(160,184,165,.35)"/>
-    <path d="M104 88 C140 90 170 110 165 135 C158 160 120 150 102 110Z" fill="rgba(200,214,200,.4)"/>
-    <path d="M96 70 C70 55 45 40 28 30"/><path d="M96 78 C70 72 45 68 25 60"/>
-    <path d="M104 70 C130 55 155 40 172 30"/><path d="M104 78 C130 72 155 68 175 60"/>
-    <path d="M97 98 C80 110 60 125 50 140"/><path d="M103 98 C120 110 140 125 150 140"/>
-    <circle cx="45" cy="35" r="5"/><circle cx="155" cy="35" r="5"/>
-    <circle cx="55" cy="130" r="4"/><circle cx="145" cy="130" r="4"/>
-  </svg>
+  </svg></div>
 
   <h1 id="nomes"><span id="n1">Luana</span> <span class="e">&amp;</span> <span id="n2">João Pedro</span></h1>
   <p class="data" id="data-curta">15.01.2027</p>
