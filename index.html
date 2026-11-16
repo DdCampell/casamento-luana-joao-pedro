@@ -40,17 +40,14 @@
   .hero .aquarela{position:absolute;inset:0;width:100%;height:100%}
   .hero .flores{position:absolute;left:-40px;top:60px;width:min(560px,62vw);opacity:.95}
   .hero .flores-dir{position:absolute;right:-60px;bottom:110px;width:min(320px,38vw);opacity:.75;transform:scaleX(-1) rotate(-12deg)}
-  /* borboleta animada: voa pelo fundo e bate as asas */
-  .voo-borboleta{position:absolute;left:0;top:0;width:min(170px,24vw);z-index:0;pointer-events:none;
-    offset-path:path("M 1050 210 C 900 130, 760 290, 640 220 S 380 140, 260 270 S 120 480, 330 530 S 760 570, 900 440 S 1180 300, 1050 210");
-    offset-rotate:0deg;animation:rota 38s linear infinite}
-  .voo-borboleta .borboleta{display:block;width:100%;animation:balanco 2.6s ease-in-out infinite}
-  .borboleta .asa{transform-box:view-box;transform-origin:100px 85px;animation:bater .5s ease-in-out infinite alternate}
-  @keyframes bater{from{transform:scaleX(1)}to{transform:scaleX(.18)}}
-  @keyframes balanco{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-10px) rotate(6deg)}}
-  @keyframes rota{from{offset-distance:0%}to{offset-distance:100%}}
-  @media (max-width:860px){.voo-borboleta{offset-path:path("M 270 140 C 190 90, 60 170, 100 270 S 280 430, 240 530 S 40 570, 60 430 S 330 230, 270 140")}}
-  @media (prefers-reduced-motion:reduce){.voo-borboleta,.voo-borboleta .borboleta,.borboleta .asa{animation:none}.voo-borboleta{offset-path:none;left:auto;right:6vw;top:110px}}
+  /* borboleta animada: voa devagar, pousa e fica batendo as asas */
+  .voo-borboleta{position:absolute;left:0;top:0;width:min(130px,22vw);z-index:0;pointer-events:none;will-change:transform}
+  .voo-borboleta .borboleta{display:block;width:100%;overflow:visible}
+  .borboleta .asa{transform-box:view-box;transform-origin:100px 70px;animation:bater .85s ease-in-out infinite alternate}
+  .pousada .borboleta .asa{animation:descanso 2.4s ease-in-out infinite alternate}
+  @keyframes bater{from{transform:scaleX(1)}to{transform:scaleX(.22)}}
+  @keyframes descanso{0%,35%{transform:scaleX(1)}100%{transform:scaleX(.5)}}
+  @media (prefers-reduced-motion:reduce){.borboleta .asa{animation:none!important}}
   .hero h1,.hero .data,.hero .local-curto{z-index:1}
   .hero h1{position:relative;font-family:'Monsieur La Doulaise',cursive;font-weight:400;color:var(--azul-escuro);
     font-size:clamp(72px,12vw,170px);line-height:1.15;letter-spacing:.01em;text-shadow:0 2px 18px rgba(255,255,255,.9)}
@@ -272,23 +269,39 @@
   </svg>
 
   <!-- borboleta (desenho original) -->
-  <div class="voo-borboleta" aria-hidden="true"><svg class="borboleta" viewBox="0 0 200 170" fill="none" stroke="#3e5a47" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <div class="voo-borboleta" id="borboleta" aria-hidden="true"><svg class="borboleta" viewBox="0 0 200 150" fill="none" stroke="#3e5a47" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round">
+    <defs>
+      <linearGradient id="asaSup" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#b9c9ba" stop-opacity=".55"/><stop offset="1" stop-color="#eef1ea" stop-opacity=".25"/></linearGradient>
+      <linearGradient id="asaInf" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8d4c5" stop-opacity=".55"/><stop offset="1" stop-color="#eef1ea" stop-opacity=".2"/></linearGradient>
+    </defs>
     <g class="asa esq">
-      <path d="M98 60 C80 20 30 5 15 25 C2 45 30 85 96 88Z" fill="rgba(160,184,165,.35)"/>
-      <path d="M96 88 C60 90 30 110 35 135 C42 160 80 150 98 110Z" fill="rgba(200,214,200,.4)"/>
-      <path d="M96 70 C70 55 45 40 28 30"/><path d="M96 78 C70 72 45 68 25 60"/>
-      <path d="M97 98 C80 110 60 125 50 140"/>
-      <circle cx="45" cy="35" r="5"/><circle cx="55" cy="130" r="4"/>
+      <path d="M99 62 C92 40 78 18 56 10 C38 4 18 8 12 22 C8 34 18 50 34 60 C52 72 78 76 97 74 Z" fill="url(#asaSup)"/>
+      <path d="M97 78 C80 80 58 86 46 100 C36 112 38 128 50 134 C58 138 66 134 72 128 C76 140 84 142 88 134 C94 120 97 100 98 84 Z" fill="url(#asaInf)"/>
+      <path d="M98 66 C80 54 58 36 34 24" stroke-width=".6"/>
+      <path d="M98 70 C78 64 52 58 22 40" stroke-width=".6"/>
+      <path d="M97 73 C80 72 60 70 38 60" stroke-width=".6"/>
+      <path d="M98 80 C84 92 70 106 58 124" stroke-width=".6"/>
+      <path d="M98 84 C90 100 84 116 80 132" stroke-width=".6"/>
+      <circle cx="30" cy="20" r="2.2" fill="#5f7d68" stroke="none" opacity=".5"/>
+      <circle cx="22" cy="30" r="1.4" fill="#5f7d68" stroke="none" opacity=".45"/>
+      <circle cx="56" cy="122" r="1.6" fill="#5f7d68" stroke="none" opacity=".45"/>
     </g>
-    <g class="asa dir">
-      <path d="M102 60 C120 20 170 5 185 25 C198 45 170 85 104 88Z" fill="rgba(160,184,165,.35)"/>
-      <path d="M104 88 C140 90 170 110 165 135 C158 160 120 150 102 110Z" fill="rgba(200,214,200,.4)"/>
-      <path d="M104 70 C130 55 155 40 172 30"/><path d="M104 78 C130 72 155 68 175 60"/>
-      <path d="M103 98 C120 110 140 125 150 140"/>
-      <circle cx="155" cy="35" r="5"/><circle cx="145" cy="130" r="4"/>
-    </g>
-    <path d="M100 40 C96 70 96 110 100 140" stroke-width="3"/>
-    <path d="M100 42 C92 26 84 16 74 10"/><path d="M100 42 C108 26 116 16 126 10"/>
+    <g class="asa dir"><g transform="translate(200 0) scale(-1 1)">
+      <path d="M99 62 C92 40 78 18 56 10 C38 4 18 8 12 22 C8 34 18 50 34 60 C52 72 78 76 97 74 Z" fill="url(#asaSup)"/>
+      <path d="M97 78 C80 80 58 86 46 100 C36 112 38 128 50 134 C58 138 66 134 72 128 C76 140 84 142 88 134 C94 120 97 100 98 84 Z" fill="url(#asaInf)"/>
+      <path d="M98 66 C80 54 58 36 34 24" stroke-width=".6"/>
+      <path d="M98 70 C78 64 52 58 22 40" stroke-width=".6"/>
+      <path d="M97 73 C80 72 60 70 38 60" stroke-width=".6"/>
+      <path d="M98 80 C84 92 70 106 58 124" stroke-width=".6"/>
+      <path d="M98 84 C90 100 84 116 80 132" stroke-width=".6"/>
+      <circle cx="30" cy="20" r="2.2" fill="#5f7d68" stroke="none" opacity=".5"/>
+      <circle cx="22" cy="30" r="1.4" fill="#5f7d68" stroke="none" opacity=".45"/>
+      <circle cx="56" cy="122" r="1.6" fill="#5f7d68" stroke="none" opacity=".45"/>
+    </g></g>
+    <ellipse cx="100" cy="64" rx="2.6" ry="5" fill="#3e5a47" stroke="none" opacity=".85"/>
+    <path d="M100 68 C98.6 84 98.6 104 100 122 C101.4 104 101.4 84 100 68Z" fill="#3e5a47" stroke="none" opacity=".75"/>
+    <path d="M99 60 C94 44 88 32 80 26 C77 24 75 26 77 28" stroke-width=".7"/>
+    <path d="M101 60 C106 44 112 32 120 26 C123 24 125 26 123 28" stroke-width=".7"/>
   </svg></div>
 
   <h1 id="nomes"><span id="n1">Luana</span> <span class="e">&amp;</span> <span id="n2">João Pedro</span></h1>
@@ -533,6 +546,38 @@ document.getElementById('rsvp').addEventListener('submit',e=>{
   aviso.innerHTML = `Quase lá! <a href="${url}" target="_blank" rel="noopener" style="font-weight:600">Toque aqui para enviar no WhatsApp</a>.`;
   const a = document.createElement('a'); a.href=url; a.target='_blank'; a.rel='noopener'; a.click();
 });
+
+/* borboleta: voa devagar entre pontos da capa, pousa e descansa */
+(function(){
+  const bf=document.getElementById('borboleta'), hero=document.getElementById('inicio');
+  if(!bf||matchMedia('(prefers-reduced-motion: reduce)').matches){ if(bf){bf.style.transform='translate('+(hero.clientWidth*.8)+'px,140px)';} return; }
+  // pontos de pouso (fração da largura/altura da capa)
+  const pousos=[[.80,.20],[.16,.24],[.70,.66],[.30,.68],[.86,.48],[.12,.52]];
+  let i=0, pos=null;
+  const ponto=(f)=>{const w=hero.clientWidth,h=hero.clientHeight,bw=bf.offsetWidth;return [f[0]*w-bw/2, f[1]*h-bw/2];};
+  const bez=(p0,p1,p2,p3,t)=>{const u=1-t;return [0,1].map(k=>u*u*u*p0[k]+3*u*u*t*p1[k]+3*u*t*t*p2[k]+t*t*t*p3[k]);};
+  function voar(){
+    const de=pos||ponto(pousos[0]); i=(i+1)%pousos.length; const para=ponto(pousos[i]);
+    const dx=para[0]-de[0], dy=para[1]-de[1], dist=Math.hypot(dx,dy);
+    const c1=[de[0]+dx*.3+(Math.random()-.5)*dist*.6, de[1]+dy*.3-dist*(.25+Math.random()*.3)];
+    const c2=[de[0]+dx*.7+(Math.random()-.5)*dist*.6, de[1]+dy*.7-dist*(.2+Math.random()*.25)];
+    const dur=Math.max(7000, dist/38*1000);  // bem devagar (~38 px/s)
+    const t0=performance.now(); bf.classList.remove('pousada');
+    (function passo(agora){
+      let t=Math.min(1,(agora-t0)/dur); const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      const p=bez(de,c1,c2,para,e); p[1]=Math.max(95,p[1]);
+      const ond=Math.sin(agora/520)*6*(1-Math.abs(2*t-1)); // leve sobe-e-desce no meio do voo
+      const inc=Math.max(-14,Math.min(14,dx/dist*12*Math.sin(Math.PI*t)));
+      bf.style.transform=`translate(${p[0]}px,${p[1]+ond}px) rotate(${inc}deg)`;
+      if(t<1) requestAnimationFrame(passo);
+      else { pos=para; bf.classList.add('pousada'); bf.style.transform=`translate(${para[0]}px,${para[1]}px) rotate(${(Math.random()-.5)*16}deg)`;
+             setTimeout(voar, 6000+Math.random()*4000); }
+    })(t0);
+  }
+  pos=ponto(pousos[0]); bf.classList.add('pousada'); bf.style.transform=`translate(${pos[0]}px,${pos[1]}px) rotate(-6deg)`;
+  setTimeout(voar, 3500);
+  addEventListener('resize',()=>{ if(bf.classList.contains('pousada')){ pos=ponto(pousos[i]); bf.style.transform=`translate(${pos[0]}px,${pos[1]}px)`; } });
+})();
 </script>
 </body>
 </html>
