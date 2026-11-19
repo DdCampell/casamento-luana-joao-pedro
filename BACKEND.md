@@ -1,37 +1,56 @@
-# Backend do site (confirmações + pagamentos)
+# Backend do site (confirmações, pagamentos e painel /admin)
 
-O site grava tudo numa Planilha Google, que funciona como o "painel" do casal:
+O site tem um backend próprio, rodando num Worker gratuito da Cloudflare, com
+um banco de dados e um painel protegido por usuário e senha.
 
-**Planilha:** https://docs.google.com/spreadsheets/d/1iCvuxSq6rqOLL2-XgoUh-X3ZzA4B9AJ3_K6EtNmeItE/edit
+## O que ele guarda
 
-Ela tem 3 abas:
-- **Resumo** — total de pessoas confirmadas e total já recebido/pendente em presentes.
-- **Confirmações** — cada resposta do formulário "Confirme sua presença": nome, se vai,
-  quantas pessoas, recado.
-- **Presentes** — cada vez que alguém clica em "Pagar com cartão": os itens, o valor,
-  e o status (`pendente` até o pagamento ser aprovado, depois muda sozinho para
-  `aprovado` ou `recusado`, com o nome de quem pagou).
+- **Confirmações de presença** — nome, se vai, quantas pessoas, recado.
+- **Pagamentos de presentes** — os itens escolhidos, o valor, e o status:
+  `pendente` até o Mercado Pago confirmar o pagamento, depois muda sozinho
+  para `aprovado` (com o nome e e-mail de quem pagou) ou `recusado`.
 
-## Como ativar
+## Onde ver tudo
 
-1. Abra a planilha acima e vá em **Extensões → Apps Script**.
-2. Cole o conteúdo do arquivo **apps-script.gs** (deste repositório) lá dentro.
-   As instruções completas — incluindo onde colar o Access Token do Mercado Pago
-   e como publicar — estão escritas em comentário no topo do próprio arquivo.
-3. Depois de publicar, você recebe uma URL terminando em `/exec`.
-4. Cole essa URL no **index.html**, na linha `backendUrl: ""`.
-5. Cadastre a mesma URL como webhook no painel do Mercado Pago (também explicado
-   no topo do apps-script.gs).
+`https://<o-endereço-do-seu-worker>/admin`
 
-Enquanto o passo 4 não for feito, o site continua funcionando normalmente:
-- a confirmação de presença some só pelo WhatsApp, como já era antes;
-- o botão "Pagar com cartão" avisa que ainda está sendo configurado, e a
-  pessoa pode usar o Pix normalmente.
+Esse link não aparece em nenhum lugar do site — só quem tiver o endereço
+exato consegue chegar nele. Lá tem uma tela de login pedindo usuário e
+senha (os mesmos que você define no passo 7 abaixo). Depois de entrar,
+mostra os totais e as duas listas completas.
 
-## Por que não dá para fazer isso só com o código do site
+## Como publicar — passo a passo
 
-O site é uma página estática (GitHub Pages): o código-fonte é visível para
-qualquer pessoa que abrir o site no navegador. A chave secreta do Mercado Pago
-e a escrita na planilha dependem de permissões que não podem ficar expostas
-nesse código — por isso ficam guardadas no Apps Script, que roda de forma
-privada dentro da conta Google.
+1. **Banco de dados**: Cloudflare → "Armazenamento e banco de dados" →
+   "D1 SQL Database" → Criar. Nome sugerido: `casamento-db`.
+2. Abra o banco → aba **Console** → cole o conteúdo de **schema.sql**
+   (neste repositório) → execute. Isso cria as tabelas.
+3. **Worker**: Cloudflare → "Workers e Páginas" → "Criar aplicação" →
+   "Criar Worker". Nome sugerido: `casamento-backend`.
+4. "Editar código" → apague tudo → cole o conteúdo de **worker.js** →
+   "Implantar".
+5. No Worker → "Configurações" → "Bindings" → adicionar vínculo tipo
+   **D1 database**, nome da variável `DB`, apontando para `casamento-db`.
+6. Ainda em "Configurações" → "Variáveis e Secrets" → adicionar como
+   **Secret** (não como texto simples):
+   - `MP_ACCESS_TOKEN` — o Access Token de produção do Mercado Pago
+   - `ADMIN_USUARIO` — o usuário para entrar no `/admin`
+   - `ADMIN_SENHA` — a senha para entrar no `/admin`
+   Salvar e implantar de novo.
+7. Copie a URL do Worker (ex.: `https://casamento-backend.seunome.workers.dev`)
+   e cole no **index.html**, na linha `backendUrl: ""`.
+8. No painel do Mercado Pago (developers.mercadopago.com.br/panel) → sua
+   aplicação → "Webhooks" → cadastre:
+   `https://casamento-backend.seunome.workers.dev/webhook`
+   marcando o evento "Pagamentos".
+
+Enquanto o passo 7 não for feito, o site continua funcionando normalmente:
+a confirmação de presença segue só pelo WhatsApp, e o botão "Pagar com
+cartão" avisa que ainda está sendo configurado, podendo usar o Pix.
+
+## Por que isso não dá para fazer só no código do site
+
+O site é uma página estática (GitHub Pages): o código é visível para
+qualquer pessoa que o abrir no navegador. A chave do Mercado Pago e a
+senha do painel nunca podem aparecer nesse código — por isso ficam só
+no Worker, como *Secrets*, nunca no repositório do GitHub.

@@ -408,11 +408,11 @@ const CASAMENTO = {
   data:  "2027-01-15T18:30:00-03:00",   // ano-mês-dia T hora (horário de Brasília)
   whatsapp: "5586999999999",            // número que recebe as confirmações (55 + DDD + número)
 
-  // URL do backend (Google Apps Script) que grava tudo na planilha do casal e
-  // conversa com o Mercado Pago. Enquanto estiver vazia, a confirmação de presença
-  // continua indo só pelo WhatsApp, e o botão "Pagar com cartão" avisa que falta configurar.
-  // Veja o arquivo apps-script.gs e o guia BACKEND.md neste repositório.
-  backendUrl: ""                        // ex.: "https://script.google.com/macros/s/XXXXX/exec"
+  // URL do backend (Worker na Cloudflare) que grava as confirmações e os
+  // pagamentos, e conversa com o Mercado Pago. Enquanto estiver vazia, a
+  // confirmação de presença vai só pelo WhatsApp, e o botão "Pagar com cartão"
+  // avisa que falta configurar. Veja worker.js, schema.sql e BACKEND.md.
+  backendUrl: ""                        // ex.: "https://casamento-backend.seunome.workers.dev"
 };
 
 /* lista de presentes — edite valores, nomes e emojis aqui */
@@ -529,8 +529,8 @@ function atualizarCarrinho(){
 }
 atualizarCarrinho();
 
-/* pagar com cartão — chama o backend (Apps Script), que fala com o Mercado Pago
-   e já grava a linha "pendente" na planilha do casal */
+/* pagar com cartão — chama o backend (worker.js), que fala com o Mercado Pago
+   e já grava o pagamento no banco, para aparecer no painel /admin */
 document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
   const aviso = document.getElementById('aviso-cartao');
   const total = totalCarrinho();
@@ -542,9 +542,9 @@ document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
   const itens = PRESENTES.filter(p=>carrinho[p.id]>0).map(p=>({title:p.nome, quantity:carrinho[p.id], unit_price:p.valor}));
   aviso.textContent = 'Abrindo o pagamento…';
   try{
-    const resp = await fetch(CASAMENTO.backendUrl, {
-      method:'POST', headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({action:'checkout', items: itens, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
+    const resp = await fetch(CASAMENTO.backendUrl + '/checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({items: itens, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
     });
     if(!resp.ok) throw new Error('resposta '+resp.status);
     const data = await resp.json();
@@ -563,8 +563,8 @@ document.getElementById('copiar').addEventListener('click',async()=>{
   catch(e){ aviso.textContent='Não deu para copiar automaticamente. Selecione a chave acima e copie.'; }
 });
 
-/* confirmação: grava na planilha do casal (se o backend estiver configurado)
-   e também abre o WhatsApp, para avisar na hora */
+/* confirmação: grava no backend, para aparecer no painel /admin
+   (se estiver configurado), e também abre o WhatsApp, para avisar na hora */
 document.getElementById('rsvp').addEventListener('submit',e=>{
   e.preventDefault();
   const nome = document.getElementById('nome').value.trim();
@@ -573,10 +573,10 @@ document.getElementById('rsvp').addEventListener('submit',e=>{
   const msg = document.getElementById('msg').value.trim();
 
   if(CASAMENTO.backendUrl){
-    fetch(CASAMENTO.backendUrl, {
-      method:'POST', headers:{'Content-Type':'text/plain'},
-      body: JSON.stringify({action:'rsvp', nome, vai, pessoas:qtd, mensagem:msg})
-    }).catch(()=>{}); // não trava o WhatsApp se a planilha falhar
+    fetch(CASAMENTO.backendUrl + '/rsvp', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({nome, vai, pessoas:qtd, mensagem:msg})
+    }).catch(()=>{}); // não trava o WhatsApp se o backend falhar
   }
 
   let texto = `Olá, ${CASAMENTO.noiva} e ${CASAMENTO.noivo}! Confirmação de presença:\n\nNome: ${nome}\nResposta: ${vai}\nPessoas: ${qtd}`;
