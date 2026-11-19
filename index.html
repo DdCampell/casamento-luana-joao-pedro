@@ -408,10 +408,11 @@ const CASAMENTO = {
   data:  "2027-01-15T18:30:00-03:00",   // ano-mês-dia T hora (horário de Brasília)
   whatsapp: "5586999999999",            // número que recebe as confirmações (55 + DDD + número)
 
-  // Endereço do servidorzinho (Cloudflare Worker) que gera o checkout do Mercado Pago.
-  // Enquanto estiver vazio, o botão "Pagar com cartão" fica desativado e avisa que falta configurar.
-  // Veja o arquivo mercadopago-worker.js e o guia PAGAMENTO-CARTAO.md neste repositório.
-  mpWorkerUrl: ""                       // ex.: "https://pagamento-luana-joao.seunome.workers.dev"
+  // URL do backend (Google Apps Script) que grava tudo na planilha do casal e
+  // conversa com o Mercado Pago. Enquanto estiver vazia, a confirmação de presença
+  // continua indo só pelo WhatsApp, e o botão "Pagar com cartão" avisa que falta configurar.
+  // Veja o arquivo apps-script.gs e o guia BACKEND.md neste repositório.
+  backendUrl: ""                        // ex.: "https://script.google.com/macros/s/XXXXX/exec"
 };
 
 /* lista de presentes — edite valores, nomes e emojis aqui */
@@ -528,25 +529,26 @@ function atualizarCarrinho(){
 }
 atualizarCarrinho();
 
-/* pagar com cartão — chama o servidor (Mercado Pago) com o total já pronto */
+/* pagar com cartão — chama o backend (Apps Script), que fala com o Mercado Pago
+   e já grava a linha "pendente" na planilha do casal */
 document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
   const aviso = document.getElementById('aviso-cartao');
   const total = totalCarrinho();
   if(total<=0) return;
-  if(!CASAMENTO.mpWorkerUrl){
+  if(!CASAMENTO.backendUrl){
     aviso.textContent = 'O pagamento com cartão ainda está sendo configurado. Por enquanto, use o Pix abaixo — obrigado!';
     return;
   }
   const itens = PRESENTES.filter(p=>carrinho[p.id]>0).map(p=>({title:p.nome, quantity:carrinho[p.id], unit_price:p.valor}));
   aviso.textContent = 'Abrindo o pagamento…';
   try{
-    const resp = await fetch(CASAMENTO.mpWorkerUrl, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({items: itens, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
+    const resp = await fetch(CASAMENTO.backendUrl, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'checkout', items: itens, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
     });
     if(!resp.ok) throw new Error('resposta '+resp.status);
     const data = await resp.json();
-    if(!data.url) throw new Error('sem url');
+    if(!data.url) throw new Error(data.erro||'sem url');
     window.location.href = data.url; // abre o checkout do Mercado Pago, já com o valor certo
   }catch(e){
     aviso.textContent = 'Não foi possível abrir o pagamento agora. Tente de novo em instantes ou use o Pix abaixo.';
@@ -561,13 +563,22 @@ document.getElementById('copiar').addEventListener('click',async()=>{
   catch(e){ aviso.textContent='Não deu para copiar automaticamente. Selecione a chave acima e copie.'; }
 });
 
-/* confirmação pelo WhatsApp */
+/* confirmação: grava na planilha do casal (se o backend estiver configurado)
+   e também abre o WhatsApp, para avisar na hora */
 document.getElementById('rsvp').addEventListener('submit',e=>{
   e.preventDefault();
   const nome = document.getElementById('nome').value.trim();
   const qtd = document.getElementById('qtd').value;
   const vai = document.querySelector('input[name=vai]:checked').value;
   const msg = document.getElementById('msg').value.trim();
+
+  if(CASAMENTO.backendUrl){
+    fetch(CASAMENTO.backendUrl, {
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({action:'rsvp', nome, vai, pessoas:qtd, mensagem:msg})
+    }).catch(()=>{}); // não trava o WhatsApp se a planilha falhar
+  }
+
   let texto = `Olá, ${CASAMENTO.noiva} e ${CASAMENTO.noivo}! Confirmação de presença:\n\nNome: ${nome}\nResposta: ${vai}\nPessoas: ${qtd}`;
   if(msg) texto += `\nRecado: ${msg}`;
   const url = `https://wa.me/${CASAMENTO.whatsapp}?text=${encodeURIComponent(texto)}`;
