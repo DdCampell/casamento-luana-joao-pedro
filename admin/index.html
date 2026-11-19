@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel do casamento</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:system-ui,Arial,sans-serif;background:#f4f3ee;color:#1f3a2b;margin:0;padding:24px}
+  h1{font-size:28px;margin:0 0 20px}
+  h2{font-size:20px;margin:36px 0 10px}
+  .caixa-login{max-width:380px;margin:80px auto;background:#fff;padding:36px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  label{display:block;margin-bottom:16px;font-size:15px}
+  input{width:100%;padding:12px;font-size:16px;margin-top:6px;border:1px solid #bfc9bb;border-radius:4px}
+  button{width:100%;padding:13px;font-size:16px;background:#5f7d68;color:#fff;border:0;border-radius:4px;cursor:pointer;margin-top:6px}
+  button:disabled{opacity:.6;cursor:default}
+  .erro{color:#a33;margin-bottom:14px}
+  #painel{display:none;max-width:1000px;margin:0 auto}
+  .topo{display:flex;justify-content:space-between;align-items:center}
+  a.sair{color:#5f7d68;text-decoration:none;font-size:14px;cursor:pointer}
+  .resumo{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
+  .cartao{background:#fff;border-radius:8px;padding:18px 22px;min-width:180px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .cartao strong{display:block;font-size:26px;margin-top:4px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;margin-bottom:10px;font-size:14px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee}
+  th{background:#ebede6}
+  .status-aprovado{color:#2a6b3f;font-weight:600}
+  .status-pendente{color:#9a7b1f;font-weight:600}
+  .status-recusado{color:#a33;font-weight:600}
+  .vazio{color:#777;padding:14px}
+  .config{max-width:420px;margin:80px auto;background:#fff;padding:30px;border-radius:8px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="caixa-login" id="tela-login">
+  <h1>Painel do casamento</h1>
+  <p class="erro" id="erro-login"></p>
+  <form id="form-login">
+    <label>Usuário<input type="text" id="usuario" autocomplete="username" autofocus required></label>
+    <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
+    <button type="submit" id="botao-entrar">Entrar</button>
+  </form>
+</div>
+
+<div id="painel">
+  <div class="topo"><h1>Painel do casamento</h1><a class="sair" id="sair">Sair</a></div>
+  <div class="resumo">
+    <div class="cartao">Pessoas confirmadas<strong id="r-pessoas">0</strong></div>
+    <div class="cartao">Já recebido<strong id="r-recebido">R$ 0</strong></div>
+    <div class="cartao">Pendente<strong id="r-pendente">R$ 0</strong></div>
+  </div>
+
+  <h2>Confirmações de presença</h2>
+  <table><thead><tr><th>Data</th><th>Nome</th><th>Vai?</th><th>Pessoas</th><th>Recado</th></tr></thead>
+    <tbody id="tabela-confirmacoes"></tbody></table>
+
+  <h2>Pagamentos de presentes</h2>
+  <table><thead><tr><th>Data</th><th>Itens</th><th>Valor</th><th>Status</th><th>Pagador</th><th>E-mail</th></tr></thead>
+    <tbody id="tabela-pagamentos"></tbody></table>
+</div>
+
+<script>
+// Cole aqui a mesma URL do Worker que está no index.html do site (CASAMENTO.backendUrl).
+const BACKEND_URL = "";
+
+const brl = v => 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const telaLogin = document.getElementById('tela-login');
+const painel = document.getElementById('painel');
+
+if(!BACKEND_URL){
+  telaLogin.outerHTML = '<div class="config"><h1>Painel ainda não configurado</h1><p>Abra este arquivo (admin/index.html) e cole a URL do backend na constante <code>BACKEND_URL</code>, no topo do script.</p></div>';
+} else {
+  document.getElementById('form-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const usuario = document.getElementById('usuario').value;
+    const senha = document.getElementById('senha').value;
+    const erro = document.getElementById('erro-login');
+    const botao = document.getElementById('botao-entrar');
+    erro.textContent = ''; botao.disabled = true; botao.textContent = 'Entrando…';
+    try{
+      const resp = await fetch(BACKEND_URL + '/admin-api', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({usuario, senha})
+      });
+      const dados = await resp.json();
+      if(!resp.ok || !dados.ok){ throw new Error(dados.erro || 'Não foi possível entrar.'); }
+      mostrarPainel(dados);
+    }catch(err){
+      erro.textContent = err.message || 'Usuário ou senha incorretos.';
+    }finally{
+      botao.disabled = false; botao.textContent = 'Entrar';
+    }
+  });
+}
+
+function mostrarPainel(dados){
+  telaLogin.style.display = 'none';
+  painel.style.display = 'block';
+
+  document.getElementById('r-pessoas').textContent = dados.resumo.pessoasConfirmadas;
+  document.getElementById('r-recebido').textContent = brl(dados.resumo.totalAprovado);
+  document.getElementById('r-pendente').textContent = brl(dados.resumo.totalPendente);
+
+  const tConf = document.getElementById('tabela-confirmacoes');
+  tConf.innerHTML = dados.confirmacoes.length ? dados.confirmacoes.map(c=>`<tr>
+      <td>${esc(c.criado_em)}</td><td>${esc(c.nome)}</td><td>${esc(c.vai)}</td>
+      <td>${esc(c.pessoas)}</td><td>${esc(c.mensagem||'')}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="vazio">Nenhuma confirmação ainda.</td></tr>';
+
+  const tPag = document.getElementById('tabela-pagamentos');
+  tPag.innerHTML = dados.pagamentos.length ? dados.pagamentos.map(p=>`<tr>
+      <td>${esc(p.criado_em)}</td><td>${esc(p.itens)}</td><td>${brl(p.valor)}</td>
+      <td class="status-${esc(p.status)}">${esc(p.status)}</td>
+      <td>${esc(p.pagador_nome||'')}</td><td>${esc(p.pagador_email||'')}</td></tr>`).join('')
+    : '<tr><td colspan="6" class="vazio">Nenhum pagamento ainda.</td></tr>';
+}
+
+document.getElementById('sair')?.addEventListener('click', ()=>location.reload());
+</script>
+</body>
+</html>
