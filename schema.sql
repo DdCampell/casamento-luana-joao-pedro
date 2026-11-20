@@ -29,3 +29,11 @@ CREATE TABLE IF NOT EXISTS pagamentos (
 -- do convidado), rode também estas duas linhas no console do D1:
 -- ALTER TABLE pagamentos ADD COLUMN convidado_nome TEXT;
 -- ALTER TABLE pagamentos ADD COLUMN mensagem TEXT;
+
+-- Guarda as tentativas erradas de login no painel admin, por IP, pra poder
+-- bloquear quem ficar tentando adivinhar a senha (proteção contra força bruta).
+CREATE TABLE IF NOT EXISTS tentativas_admin (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ip TEXT NOT NULL,
+  criado_em TEXT NOT NULL DEFAULT (datetime('now'))
+);

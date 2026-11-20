@@ -167,11 +167,29 @@ async function adminApi(request, env) {
   let body;
   try { body = await request.json(); } catch { return json({ erro: 'JSON inválido' }, 400); }
 
+  // bloqueio por tentativas (anti força-bruta): guarda cada tentativa errada
+  // numa tabela, por IP, e bloqueia por um tempo se passar do limite.
+  const ip = request.headers.get('CF-Connecting-IP') || 'desconhecido';
+  await env.DB.prepare(
+    `DELETE FROM tentativas_admin WHERE criado_em < datetime('now', '-1 day')`
+  ).run();
+  const janela = await env.DB.prepare(
+    `SELECT COUNT(*) AS n FROM tentativas_admin WHERE ip = ? AND criado_em > datetime('now', '-15 minutes')`
+  ).bind(ip).first();
+  if ((janela?.n || 0) >= 8) {
+    return json({ erro: 'Muitas tentativas de login. Aguarde alguns minutos e tente de novo.' }, 429);
+  }
+
   const usuario = body.usuario || '';
   const senha = body.senha || '';
-  if (usuario !== env.ADMIN_USUARIO || senha !== env.ADMIN_SENHA) {
+  const credenciaisCertas =
+    compararSeguro(usuario, env.ADMIN_USUARIO || '') && compararSeguro(senha, env.ADMIN_SENHA || '');
+  if (!credenciaisCertas) {
+    await env.DB.prepare('INSERT INTO tentativas_admin (ip) VALUES (?)').bind(ip).run();
     return json({ erro: 'Usuário ou senha incorretos.' }, 401);
   }
+  // login certo: limpa as tentativas desse IP
+  await env.DB.prepare('DELETE FROM tentativas_admin WHERE ip = ?').bind(ip).run();
 
   if (body.acao === 'excluir_confirmacao') {
     const id = parseInt(body.id, 10);
@@ -195,4 +213,21 @@ async function adminApi(request, env) {
     confirmacoes: confirmacoes.results,
     pagamentos: pagamentos.results,
   });
+}
+
+/* ---------------- compara duas strings em "tempo constante" ----------------
+   Evita que alguém descubra a senha certa pouco a pouco medindo quanto
+   tempo a comparação demora (ataque de temporização). Sempre percorre o
+   texto inteiro, em vez de parar assim que acha a primeira letra errada. */
+function compararSeguro(a, b) {
+  a = String(a);
+  b = String(b);
+  const tamanho = Math.max(a.length, b.length);
+  let diferente = a.length === b.length ? 0 : 1;
+  for (let i = 0; i < tamanho; i++) {
+    const ca = i < a.length ? a.charCodeAt(i) : 0;
+    const cb = i < b.length ? b.charCodeAt(i) : 0;
+    diferente |= ca ^ cb;
+  }
+  return diferente === 0;
 }
