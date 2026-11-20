@@ -70,10 +70,28 @@
   .contagem h2{font-weight:400;font-size:clamp(24px,3vw,32px);color:var(--azul-escuro)}
   .relogio{display:flex;justify-content:center;gap:clamp(12px,3vw,30px);margin-top:34px;flex-wrap:wrap}
   .caixa{width:clamp(120px,15vw,150px)}
-  .caixa .num{background:var(--azul);color:#fff;border-radius:4px;font-family:'Pinyon Script',cursive;font-size:clamp(54px,6vw,70px);
-    line-height:1.25;position:relative;padding:6px 0 0}
-  .caixa .num::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.55)}
   .caixa .rot{margin-top:10px;font-size:17px;letter-spacing:.08em;color:var(--azul-escuro)}
+
+  /* contagem — efeito "plaquinha" (flip) */
+  .flip-grupo{display:flex;gap:4px;justify-content:center}
+  .flip{position:relative;flex:1;height:clamp(58px,8vw,84px);perspective:360px}
+  .flip-metade,.flip-aba{position:absolute;left:0;right:0;height:50%;overflow:hidden;background:var(--azul);backface-visibility:hidden}
+  .flip-metade span,.flip-aba span{position:absolute;left:0;right:0;height:200%;display:block;
+    line-height:clamp(58px,8vw,84px);text-align:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:clamp(32px,4.6vw,48px)}
+  .flip-metade.cima,.flip-aba.cima{top:0;border-radius:4px 4px 0 0}
+  .flip-metade.cima span,.flip-aba.cima span{top:0}
+  .flip-metade.baixo,.flip-aba.baixo{bottom:0;border-radius:0 0 4px 4px}
+  .flip-metade.baixo span,.flip-aba.baixo span{bottom:0}
+  .flip::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.55);z-index:4;pointer-events:none}
+  .flip-metade{z-index:1}
+  .flip-aba{transform-style:preserve-3d}
+  .flip-aba.cima{z-index:3;transform-origin:center bottom}
+  .flip-aba.baixo{z-index:2;transform-origin:center top;transform:rotateX(90deg)}
+  .flip-aba.cima.virar{animation:flipCima .3s cubic-bezier(.37,0,.63,1) forwards}
+  .flip-aba.baixo.virar{animation:flipBaixo .3s cubic-bezier(.37,0,.63,1) .3s forwards}
+  @keyframes flipCima{from{transform:rotateX(0)}to{transform:rotateX(-90deg)}}
+  @keyframes flipBaixo{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
 
   /* história */
   .historia{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:50px}
@@ -220,10 +238,10 @@
 <section class="contagem">
   <h2>Contagem regressiva para o grande dia</h2>
   <div class="relogio">
-    <div class="caixa"><div class="num" id="dias">0</div><div class="rot">Dias</div></div>
-    <div class="caixa"><div class="num" id="horas">0</div><div class="rot">Horas</div></div>
-    <div class="caixa"><div class="num" id="minutos">0</div><div class="rot">Minutos</div></div>
-    <div class="caixa"><div class="num" id="segundos">0</div><div class="rot">Segundos</div></div>
+    <div class="caixa"><div class="flip-grupo" id="dias"></div><div class="rot">Dias</div></div>
+    <div class="caixa"><div class="flip-grupo" id="horas"></div><div class="rot">Horas</div></div>
+    <div class="caixa"><div class="flip-grupo" id="minutos"></div><div class="rot">Minutos</div></div>
+    <div class="caixa"><div class="flip-grupo" id="segundos"></div><div class="rot">Segundos</div></div>
   </div>
 </section>
 
@@ -355,30 +373,22 @@ const CASAMENTO = {
 /* lista de presentes — edite valores, nomes e fotos aqui */
 const PRESENTES = [
   {id:'p01', foto:'https://imgs.casasbahia.com.br/1570604617/1xg.jpg?imwidth=500', nome:'Conjunto de 6 taças de vidro Diamond Gold 325ml', categoria:'Mesa posta', valor:69.99},
-  {id:'p03', foto:'https://imgs.casasbahia.com.br/1505443119/1xg.jpg?imwidth=500', nome:'Jogo de 6 taças de cristal para vinho 450ml', categoria:'Mesa posta', valor:87.2},
   {id:'p04', foto:'https://imgs.pontofrio.com.br/1571555501/1xg.jpg?imwidth=500', nome:'Jogo de toalhas de banho 5 peças Verona 100% algodão', categoria:'Banho', valor:90.0},
-  {id:'p05', foto:'https://imgs.casasbahia.com.br/1564865505/1xg.jpg?imwidth=500', nome:'Faqueiro Brinox Turim 42 peças inox', categoria:'Mesa posta', valor:109.9},
   {id:'p07', foto:'https://imgs.casasbahia.com.br/1537294197/1xg.jpg?imwidth=500', nome:'Jogo de cama queen 4 peças 400 fios ponto palito Casa Dona', categoria:'Quarto', valor:119.43},
-  {id:'p08', foto:'https://imgs.extra.com.br/1572807737/1xg.jpg?imwidth=500', nome:'Liquidificador Cadence Contrast BLD701 600W', categoria:'Eletroportáteis', valor:123.49},
   {id:'p09', foto:'https://imgs.extra.com.br/1582462415/1xg.jpg?imwidth=500', nome:'Kit 5 toalhas de banho banhão Beka Barcelona', categoria:'Banho', valor:149.0},
   {id:'p10', foto:'https://imgs.casasbahia.com.br/1505373632/1xg.jpg?imwidth=500', nome:'Jogo de 6 taças de cristal para champanhe 220ml', categoria:'Mesa posta', valor:166.59},
   {id:'p11', foto:'https://imgs.casasbahia.com.br/1575531610/1xg.jpg?imwidth=500', nome:'Liquidificador Oster 1400 Full 1400W', categoria:'Eletroportáteis', valor:196.0},
   {id:'p12', foto:'https://imgs.casasbahia.com.br/1525547573/1xg.jpg?imwidth=500', nome:'Jogo de cama queen 4 peças 100% algodão 400 fios', categoria:'Quarto', valor:205.11},
   {id:'p13', foto:'https://imgs.casasbahia.com.br/1582895821/1xg.jpg?imwidth=500', nome:'Jogo de toalhas Karsten Lumina 5 peças', categoria:'Banho', valor:236.41},
-  {id:'p14', foto:'https://a-static.mlcdn.com.br/470x352/taca-de-cristal-bohemia-para-vinho-460-ml-xtra-6-pecas-bohemia-crystal/elleganzacristais/15344352492/6bf7c9f73215f61a2635fc35ca0c18d7.jpeg', nome:'Jogo de 6 taças de cristal Bohemia vinho tinto 650ml', categoria:'Mesa posta', valor:238.44},
   {id:'p15', foto:'https://imgs.extra.com.br/1582378090/1xg.jpg?imwidth=500', nome:'Air fryer Midea Cyclone 5,5L', categoria:'Eletroportáteis', valor:284.05},
-  {id:'p16', foto:'https://imgs.casasbahia.com.br/1562605081/1xg.jpg?imwidth=500', nome:'Liquidificador Philips Walita Série 5000', categoria:'Eletroportáteis', valor:286.15},
   {id:'p17', foto:'https://fastshopbr.vtexassets.com/arquivos/ids/3387122/6_6_67dcb5bb2954dd4c582455ac.jpg?v=639032237099300000', nome:'Jogo de toalhas Buddemeyer Dual Air 5 peças', categoria:'Banho', valor:310.3},
   {id:'p18', foto:'https://imgs.extra.com.br/1576051963/1xg.jpg?imwidth=500', nome:'Air fryer Philco Redstone 5,5L PAF55B', categoria:'Eletroportáteis', valor:331.55},
   {id:'p19', foto:'https://imgs.casasbahia.com.br/1503741876/1xg.jpg?imwidth=500', nome:'Jogo de panelas Tramontina Turim 10 peças antiaderente', categoria:'Cozinha', valor:360.15},
   {id:'p20', foto:'https://imgs.casasbahia.com.br/1582445794/1xg.jpg?imwidth=500', nome:'Faqueiro Tramontina Cosmos 42 peças', categoria:'Mesa posta', valor:383.77},
-  {id:'p21', foto:'https://imgs.extra.com.br/1576004281/1xg.jpg?imwidth=500', nome:'Jogo de jantar 30 peças Floralis Tramontina', categoria:'Mesa posta', valor:396.67},
-  {id:'p22', foto:'https://product-hub-prd.madeiramadeira.com.br/765997295/images/3858c4eb-0be1-4127-a891-7d23ed1052ed0110011OBAT640127principal.jpg', nome:'Batedeira planetária Oster 4L 850W', categoria:'Eletroportáteis', valor:415.0},
   {id:'p23', foto:'https://fastshopbr.vtexassets.com/arquivos/ids/5537216/17879457364817.jpg?v=639239479037300000', nome:'Cooktop 5 bocas a gás Mondial CTG02', categoria:'Cozinha', valor:489.16},
   {id:'p24', foto:'https://imgs.casasbahia.com.br/1558019847/1xg.jpg?imwidth=500', nome:'Batedeira planetária Philco PHP500 Turbo', categoria:'Eletroportáteis', valor:523.16},
   {id:'p25', foto:'https://imgs.casasbahia.com.br/55030976/1xg.jpg?imwidth=500', nome:'Cafeteira Nespresso Essenza Mini D30', categoria:'Eletroportáteis', valor:539.1},
   {id:'p26', foto:'https://imgs.casasbahia.com.br/1522720330/1xg.jpg?imwidth=500', nome:'Jogo de jantar 30 peças Oxford Ryo Maresia', categoria:'Mesa posta', valor:590.57},
-  {id:'p27', foto:'https://imgs.casasbahia.com.br/1568204208/1xg.jpg?imwidth=500', nome:'Jogo de panelas Brinox Ceramic Life 8 peças', categoria:'Cozinha', valor:599.9},
   {id:'p28', foto:'https://imgs.casasbahia.com.br/1568412794/1xg.jpg?imwidth=500', nome:'Micro-ondas Electrolux 34L MEO44', categoria:'Eletrodomésticos', valor:650.07},
   {id:'p29', foto:'https://imgs.casasbahia.com.br/1571394338/1xg.jpg?imwidth=500', nome:'Cafeteira Nespresso Pixie Redesign', categoria:'Eletroportáteis', valor:689.91},
   {id:'p30', foto:'https://imgs.casasbahia.com.br/55066389/1g.jpg?imwidth=500', nome:'Micro-ondas LG NeoChef 30L', categoria:'Eletrodomésticos', valor:719.04},
@@ -386,7 +396,6 @@ const PRESENTES = [
   {id:'p32', foto:'https://imgs.casasbahia.com.br/1559586599/1xg.jpg?imwidth=500', nome:'Colchão queen molas ensacadas Gazin Esmeralda D28', categoria:'Quarto', valor:949.99},
   {id:'p33', foto:'https://imgs.casasbahia.com.br/1582240089/1xg.jpg?imwidth=500', nome:'Cafeteira Nespresso Vertuo Pop+ Deluxe', categoria:'Eletroportáteis', valor:1126.23},
   {id:'p34', foto:'https://imgs.casasbahia.com.br/1529585597/1xg.jpg?imwidth=500', nome:'Jogo de jantar e chá 30 peças Germer Dunas', categoria:'Mesa posta', valor:1310.99},
-  {id:'p35', foto:'https://imgs.casasbahia.com.br/1579448368/1xg.jpg?imwidth=500', nome:'Robô aspirador Xiaomi S40 10.000Pa', categoria:'Eletroportáteis', valor:1414.55},
   {id:'p36', foto:'https://imgs.casasbahia.com.br/55071124/1g.jpg?imwidth=500', nome:'Robô aspirador Electrolux Experience ERB60 com mapeamento', categoria:'Eletroportáteis', valor:1599.0},
   {id:'p37', foto:'https://imgs.casasbahia.com.br/1582975730/1xg.jpg?imwidth=500', nome:'Máquina de lavar Midea 12kg Wave Impeller', categoria:'Eletrodomésticos', valor:1661.55},
   {id:'p38', foto:'https://imgs.casasbahia.com.br/11488763/1xg.jpg?imwidth=500', nome:'Fogão Consul 5 bocas inox CFS5NAR', categoria:'Cozinha', valor:1729.17},
@@ -406,16 +415,64 @@ const alvo = new Date(CASAMENTO.data);
 const p2 = n => String(n).padStart(2,'0');
 document.getElementById('data-curta').textContent = p2(alvo.getDate())+'.'+p2(alvo.getMonth()+1)+'.'+alvo.getFullYear();
 
-/* contagem regressiva */
+/* contagem regressiva — cada dígito "vira" como uma plaquinha ao trocar de valor */
+function criarDigito(valorInicial){
+  const d = document.createElement('div');
+  d.className = 'flip';
+  d.dataset.valor = valorInicial;
+  d.innerHTML =
+    `<div class="flip-metade cima"><span>${valorInicial}</span></div>` +
+    `<div class="flip-metade baixo"><span>${valorInicial}</span></div>` +
+    `<div class="flip-aba cima"><span>${valorInicial}</span></div>` +
+    `<div class="flip-aba baixo"><span>${valorInicial}</span></div>`;
+  return d;
+}
+function criarGrupo(container, textoInicial){
+  container.innerHTML = '';
+  [...textoInicial].forEach(ch => container.appendChild(criarDigito(ch)));
+}
+// vira um único dígito (de um valor para outro) com a animação de plaquinha
+function virarDigito(digitoEl, novoValor){
+  if (digitoEl.dataset.valor === novoValor) return; // nada mudou, sem animação
+  const valorAntigo = digitoEl.dataset.valor;
+  digitoEl.dataset.valor = novoValor;
+  const abaCima = digitoEl.querySelector('.flip-aba.cima span');
+  const abaBaixo = digitoEl.querySelector('.flip-aba.baixo span');
+  const metadeCima = digitoEl.querySelector('.flip-metade.cima span');
+  const metadeBaixo = digitoEl.querySelector('.flip-metade.baixo span');
+  // o fundo já assume o valor novo na hora (fica escondido pela plaquinha até ela virar)
+  metadeCima.textContent = novoValor;
+  metadeBaixo.textContent = novoValor;
+  abaCima.textContent = valorAntigo;   // plaquinha de cima: mostra o valor antigo e dobra pra baixo
+  abaBaixo.textContent = novoValor;    // plaquinha de baixo: já é o valor novo, desdobra revelando
+  const abaCimaEl = digitoEl.querySelector('.flip-aba.cima');
+  const abaBaixoEl = digitoEl.querySelector('.flip-aba.baixo');
+  abaCimaEl.classList.remove('virar'); abaBaixoEl.classList.remove('virar');
+  void digitoEl.offsetWidth; // força reflow pra poder re-disparar a animação
+  abaCimaEl.classList.add('virar'); abaBaixoEl.classList.add('virar');
+}
+function atualizarGrupo(container, novoTexto){
+  const digitos = container.children;
+  [...novoTexto].forEach((ch, i) => { if (digitos[i]) virarDigito(digitos[i], ch); });
+}
+const p2c = n => String(n).padStart(2,'0');
 function tick(){
   let d = Math.max(0, alvo - new Date());
   const dias = Math.floor(d/864e5); d -= dias*864e5;
   const h = Math.floor(d/36e5); d -= h*36e5;
   const m = Math.floor(d/6e4); d -= m*6e4;
   const s = Math.floor(d/1e3);
-  dias_.textContent = dias; horas_.textContent = h; min_.textContent = m; seg_.textContent = s;
+  atualizarGrupo(dias_, p2c(dias));
+  atualizarGrupo(horas_, p2c(h));
+  atualizarGrupo(min_, p2c(m));
+  atualizarGrupo(seg_, p2c(s));
 }
 const dias_=document.getElementById('dias'),horas_=document.getElementById('horas'),min_=document.getElementById('minutos'),seg_=document.getElementById('segundos');
+const diasIniciais = Math.max(0, Math.floor((alvo-new Date())/864e5));
+criarGrupo(dias_, p2c(diasIniciais));
+criarGrupo(horas_, '00');
+criarGrupo(min_, '00');
+criarGrupo(seg_, '00');
 tick(); setInterval(tick,1000);
 
 /* menu fica sólido ao rolar */

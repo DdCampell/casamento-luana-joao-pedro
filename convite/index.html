@@ -70,10 +70,28 @@
   .contagem h2{font-weight:400;font-size:clamp(24px,3vw,32px);color:var(--azul-escuro)}
   .relogio{display:flex;justify-content:center;gap:clamp(12px,3vw,30px);margin-top:34px;flex-wrap:wrap}
   .caixa{width:clamp(120px,15vw,150px)}
-  .caixa .num{background:var(--azul);color:#fff;border-radius:4px;font-family:'Pinyon Script',cursive;font-size:clamp(54px,6vw,70px);
-    line-height:1.25;position:relative;padding:6px 0 0}
-  .caixa .num::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.55)}
   .caixa .rot{margin-top:10px;font-size:17px;letter-spacing:.08em;color:var(--azul-escuro)}
+
+  /* contagem — efeito "plaquinha" (flip) */
+  .flip-grupo{display:flex;gap:4px;justify-content:center}
+  .flip{position:relative;flex:1;height:clamp(58px,8vw,84px);perspective:360px}
+  .flip-metade,.flip-aba{position:absolute;left:0;right:0;height:50%;overflow:hidden;background:var(--azul);backface-visibility:hidden}
+  .flip-metade span,.flip-aba span{position:absolute;left:0;right:0;height:200%;display:block;
+    line-height:clamp(58px,8vw,84px);text-align:center;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:600;
+    font-size:clamp(32px,4.6vw,48px)}
+  .flip-metade.cima,.flip-aba.cima{top:0;border-radius:4px 4px 0 0}
+  .flip-metade.cima span,.flip-aba.cima span{top:0}
+  .flip-metade.baixo,.flip-aba.baixo{bottom:0;border-radius:0 0 4px 4px}
+  .flip-metade.baixo span,.flip-aba.baixo span{bottom:0}
+  .flip::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,.55);z-index:4;pointer-events:none}
+  .flip-metade{z-index:1}
+  .flip-aba{transform-style:preserve-3d}
+  .flip-aba.cima{z-index:3;transform-origin:center bottom}
+  .flip-aba.baixo{z-index:2;transform-origin:center top;transform:rotateX(90deg)}
+  .flip-aba.cima.virar{animation:flipCima .3s cubic-bezier(.37,0,.63,1) forwards}
+  .flip-aba.baixo.virar{animation:flipBaixo .3s cubic-bezier(.37,0,.63,1) .3s forwards}
+  @keyframes flipCima{from{transform:rotateX(0)}to{transform:rotateX(-90deg)}}
+  @keyframes flipBaixo{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
 
   /* história */
   .historia{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:50px}
@@ -219,10 +237,10 @@
 <section class="contagem">
   <h2>Contagem regressiva para o grande dia</h2>
   <div class="relogio">
-    <div class="caixa"><div class="num" id="dias">0</div><div class="rot">Dias</div></div>
-    <div class="caixa"><div class="num" id="horas">0</div><div class="rot">Horas</div></div>
-    <div class="caixa"><div class="num" id="minutos">0</div><div class="rot">Minutos</div></div>
-    <div class="caixa"><div class="num" id="segundos">0</div><div class="rot">Segundos</div></div>
+    <div class="caixa"><div class="flip-grupo" id="dias"></div><div class="rot">Dias</div></div>
+    <div class="caixa"><div class="flip-grupo" id="horas"></div><div class="rot">Horas</div></div>
+    <div class="caixa"><div class="flip-grupo" id="minutos"></div><div class="rot">Minutos</div></div>
+    <div class="caixa"><div class="flip-grupo" id="segundos"></div><div class="rot">Segundos</div></div>
   </div>
 </section>
 
@@ -338,16 +356,64 @@ const alvo = new Date(CASAMENTO.data);
 const p2 = n => String(n).padStart(2,'0');
 document.getElementById('data-curta').textContent = p2(alvo.getDate())+'.'+p2(alvo.getMonth()+1)+'.'+alvo.getFullYear();
 
-/* contagem regressiva */
+/* contagem regressiva — cada dígito "vira" como uma plaquinha ao trocar de valor */
+function criarDigito(valorInicial){
+  const d = document.createElement('div');
+  d.className = 'flip';
+  d.dataset.valor = valorInicial;
+  d.innerHTML =
+    `<div class="flip-metade cima"><span>${valorInicial}</span></div>` +
+    `<div class="flip-metade baixo"><span>${valorInicial}</span></div>` +
+    `<div class="flip-aba cima"><span>${valorInicial}</span></div>` +
+    `<div class="flip-aba baixo"><span>${valorInicial}</span></div>`;
+  return d;
+}
+function criarGrupo(container, textoInicial){
+  container.innerHTML = '';
+  [...textoInicial].forEach(ch => container.appendChild(criarDigito(ch)));
+}
+// vira um único dígito (de um valor para outro) com a animação de plaquinha
+function virarDigito(digitoEl, novoValor){
+  if (digitoEl.dataset.valor === novoValor) return; // nada mudou, sem animação
+  const valorAntigo = digitoEl.dataset.valor;
+  digitoEl.dataset.valor = novoValor;
+  const abaCima = digitoEl.querySelector('.flip-aba.cima span');
+  const abaBaixo = digitoEl.querySelector('.flip-aba.baixo span');
+  const metadeCima = digitoEl.querySelector('.flip-metade.cima span');
+  const metadeBaixo = digitoEl.querySelector('.flip-metade.baixo span');
+  // o fundo já assume o valor novo na hora (fica escondido pela plaquinha até ela virar)
+  metadeCima.textContent = novoValor;
+  metadeBaixo.textContent = novoValor;
+  abaCima.textContent = valorAntigo;   // plaquinha de cima: mostra o valor antigo e dobra pra baixo
+  abaBaixo.textContent = novoValor;    // plaquinha de baixo: já é o valor novo, desdobra revelando
+  const abaCimaEl = digitoEl.querySelector('.flip-aba.cima');
+  const abaBaixoEl = digitoEl.querySelector('.flip-aba.baixo');
+  abaCimaEl.classList.remove('virar'); abaBaixoEl.classList.remove('virar');
+  void digitoEl.offsetWidth; // força reflow pra poder re-disparar a animação
+  abaCimaEl.classList.add('virar'); abaBaixoEl.classList.add('virar');
+}
+function atualizarGrupo(container, novoTexto){
+  const digitos = container.children;
+  [...novoTexto].forEach((ch, i) => { if (digitos[i]) virarDigito(digitos[i], ch); });
+}
+const p2c = n => String(n).padStart(2,'0');
 function tick(){
   let d = Math.max(0, alvo - new Date());
   const dias = Math.floor(d/864e5); d -= dias*864e5;
   const h = Math.floor(d/36e5); d -= h*36e5;
   const m = Math.floor(d/6e4); d -= m*6e4;
   const s = Math.floor(d/1e3);
-  dias_.textContent = dias; horas_.textContent = h; min_.textContent = m; seg_.textContent = s;
+  atualizarGrupo(dias_, p2c(dias));
+  atualizarGrupo(horas_, p2c(h));
+  atualizarGrupo(min_, p2c(m));
+  atualizarGrupo(seg_, p2c(s));
 }
 const dias_=document.getElementById('dias'),horas_=document.getElementById('horas'),min_=document.getElementById('minutos'),seg_=document.getElementById('segundos');
+const diasIniciais = Math.max(0, Math.floor((alvo-new Date())/864e5));
+criarGrupo(dias_, p2c(diasIniciais));
+criarGrupo(horas_, '00');
+criarGrupo(min_, '00');
+criarGrupo(seg_, '00');
 tick(); setInterval(tick,1000);
 
 /* menu fica sólido ao rolar */
