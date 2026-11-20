@@ -2,17 +2,18 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Site de Casamento</title>
 <script>
 /* Link sem lista de presentes: adicione ?presentes=nao no final do
    link do site para mandar uma versão sem a seção de presentes (nem
    no menu). Ex.: .../casamento-luana-joao-pedro/?presentes=nao
-   Roda cedo, antes da página desenhar, pra não dar nem um pisca da seção. */
+   Fica logo no topo do <head>, antes de tudo, pra decidir isso antes
+   mesmo da página começar a desenhar (sem nenhum pisca da seção). */
 if (new URLSearchParams(location.search).get('presentes') === 'nao') {
   document.documentElement.classList.add('sem-presentes');
 }
 </script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site de Casamento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Monsieur+La+Doulaise&family=Montserrat:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Qwitcher+Grypen:wght@700&family=Beau+Rivage&display=swap" rel="stylesheet">
