@@ -140,11 +140,12 @@
   .presente .stepper button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--azul);background:#fff;color:var(--azul-escuro);font-size:22px;line-height:1;cursor:pointer}
   .presente .stepper button:active{background:var(--suave)}
   .presente .stepper .qtd{min-width:28px;font-size:21px;font-weight:600;color:var(--azul-escuro)}
-  .carrinho{max-width:640px;margin:40px auto 0;background:var(--suave);border-radius:6px;padding:30px;text-align:center}
+  .opcoes-pagamento{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:980px;margin:46px auto 0;align-items:start}
+  .opcao-pagar{background:var(--suave);border-radius:6px;padding:30px;text-align:center;height:100%}
+  .opcao-pagar h3{font-size:22px;color:var(--azul-escuro);margin-bottom:18px}
   .carrinho-total{display:flex;align-items:center;justify-content:center;gap:12px;font-size:22px;margin-bottom:18px}
   .carrinho-total strong{font-size:30px;color:var(--azul-escuro)}
   #pagar-cartao:disabled{opacity:.5;cursor:not-allowed}
-  .pix{max-width:640px;margin:46px auto 0;text-align:center;background:var(--suave);border-radius:6px;padding:32px}
   .pix .chave{font-size:24px;font-weight:600;color:var(--azul-escuro);word-break:break-all;margin:8px 0}
 
   /* rsvp */
@@ -179,6 +180,7 @@
     .historia{grid-template-columns:1fr}
     .galeria{grid-template-columns:repeat(2,1fr);gap:14px}
     .linha{grid-template-columns:1fr}
+    .opcoes-pagamento{grid-template-columns:1fr}
     .hero .canto{width:52vw}
     .hero .canto.tl{top:60px}
     .hero .canto.tr{top:56px}
@@ -350,23 +352,28 @@
     <p class="sub surge">Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha uma ou mais cotas abaixo.</p>
     <div class="presentes" id="lista-presentes"></div>
 
-    <div class="carrinho surge" id="carrinho">
-      <div class="carrinho-total"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
-      <div style="text-align:left;max-width:420px;margin:0 auto 20px">
-        <div style="margin-bottom:14px"><label for="presente-nome">Seu nome</label><input type="text" id="presente-nome" placeholder="Ex.: Maria da Silva"></div>
-        <div><label for="presente-msg">Mensagem para o casal (opcional)</label><textarea id="presente-msg" rows="3" placeholder="Escreva aqui seu carinho…"></textarea></div>
+    <p class="sub surge" style="margin-top:10px"><strong>Como prefere presentear?</strong> Escolha uma das opções abaixo.</p>
+    <div class="opcoes-pagamento">
+      <div class="opcao-pagar carrinho surge" id="carrinho">
+        <h3>💳 Pagar com cartão</h3>
+        <div class="carrinho-total"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
+        <div style="text-align:left;max-width:420px;margin:0 auto 20px">
+          <div style="margin-bottom:14px"><label for="presente-nome">Seu nome</label><input type="text" id="presente-nome" placeholder="Ex.: Maria da Silva"></div>
+          <div><label for="presente-msg">Mensagem para o casal (opcional)</label><textarea id="presente-msg" rows="3" placeholder="Escreva aqui seu carinho…"></textarea></div>
+        </div>
+        <button class="botao" id="pagar-cartao" disabled>Pagar com cartão</button>
+        <p class="aviso" id="aviso-cartao"></p>
       </div>
-      <button class="botao" id="pagar-cartao" disabled>Pagar com cartão</button>
-      <p class="aviso" id="aviso-cartao"></p>
-    </div>
 
-    <div class="pix surge">
-      <p>Ou prefere Pix? Chave Pix</p>
-      <div class="chave" id="chave-pix">seuemail@exemplo.com</div>
-      <p style="font-size:17px">Nome do titular · Banco</p>
-      <p style="font-size:17px;margin-top:6px">Valor a enviar: <strong id="pix-valor">o que escolher acima, ou o quanto quiser</strong></p>
-      <button class="botao" id="copiar">Copiar chave Pix</button>
-      <p class="aviso" id="aviso-pix"></p>
+      <div class="opcao-pagar pix surge">
+        <h3>🔑 Pagar com Pix</h3>
+        <p>Chave Pix</p>
+        <div class="chave" id="chave-pix">seuemail@exemplo.com</div>
+        <p style="font-size:17px">Nome do titular · Banco</p>
+        <p style="font-size:17px;margin-top:6px">Valor a enviar: <strong id="pix-valor">o que escolher acima, ou o quanto quiser</strong></p>
+        <button class="botao" id="copiar">Copiar chave Pix</button>
+        <p class="aviso" id="aviso-pix"></p>
+      </div>
     </div>
   </div>
 </section>
