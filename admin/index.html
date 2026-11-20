@@ -26,7 +26,6 @@
   th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee}
   th{background:#ebede6}
   .status-aprovado{color:#2a6b3f;font-weight:600}
-  .status-pendente{color:#9a7b1f;font-weight:600}
   .status-recusado{color:#a33;font-weight:600}
   .vazio{color:#777;padding:14px}
   .config{max-width:420px;margin:80px auto;background:#fff;padding:30px;border-radius:8px;text-align:center}
@@ -49,7 +48,6 @@
   <div class="resumo">
     <div class="cartao">Pessoas confirmadas<strong id="r-pessoas">0</strong></div>
     <div class="cartao">Já recebido<strong id="r-recebido">R$ 0</strong></div>
-    <div class="cartao">Pendente<strong id="r-pendente">R$ 0</strong></div>
   </div>
 
   <h2>Confirmações de presença</h2>
@@ -103,7 +101,6 @@ function mostrarPainel(dados){
 
   document.getElementById('r-pessoas').textContent = dados.resumo.pessoasConfirmadas;
   document.getElementById('r-recebido').textContent = brl(dados.resumo.totalAprovado);
-  document.getElementById('r-pendente').textContent = brl(dados.resumo.totalPendente);
 
   const tConf = document.getElementById('tabela-confirmacoes');
   tConf.innerHTML = dados.confirmacoes.length ? dados.confirmacoes.map(c=>`<tr>
@@ -112,7 +109,8 @@ function mostrarPainel(dados){
     : '<tr><td colspan="5" class="vazio">Nenhuma confirmação ainda.</td></tr>';
 
   const tPag = document.getElementById('tabela-pagamentos');
-  tPag.innerHTML = dados.pagamentos.length ? dados.pagamentos.map(p=>`<tr>
+  const pagamentos = dados.pagamentos.filter(p => p.status !== 'pendente');
+  tPag.innerHTML = pagamentos.length ? pagamentos.map(p=>`<tr>
       <td>${esc(p.criado_em)}</td><td>${esc(p.itens)}</td><td>${brl(p.valor)}</td>
       <td class="status-${esc(p.status)}">${esc(p.status)}</td>
       <td>${esc(p.convidado_nome||'')}</td><td>${esc(p.mensagem||'')}</td>
