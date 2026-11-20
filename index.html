@@ -2,16 +2,6 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<script>
-/* Link sem lista de presentes: adicione ?presentes=nao no final do
-   link do site para mandar uma versão sem a seção de presentes (nem
-   no menu). Ex.: .../casamento-luana-joao-pedro/?presentes=nao
-   Fica logo no topo do <head>, antes de tudo, pra decidir isso antes
-   mesmo da página começar a desenhar (sem nenhum pisca da seção). */
-if (new URLSearchParams(location.search).get('presentes') === 'nao') {
-  document.documentElement.classList.add('sem-presentes');
-}
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Site de Casamento</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,8 +19,6 @@ if (new URLSearchParams(location.search).get('presentes') === 'nao') {
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  html.sem-presentes .nav-presentes,
-  html.sem-presentes #presentes{display:none!important}
   body{font-family:'Montserrat',sans-serif;color:var(--tinta);background:var(--nevoa);font-size:19px;line-height:1.7}
   a{color:inherit}
   .script{font-family:'Pinyon Script',cursive;font-weight:400}
@@ -124,8 +112,14 @@ if (new URLSearchParams(location.search).get('presentes') === 'nao') {
   .galeria .foto img{width:100%;height:100%;object-fit:cover}
 
   /* presentes */
-  .presentes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px;margin-top:46px}
-  .presente{background:#fff;border:1px solid #dde2d8;border-radius:6px;padding:24px 24px 30px;text-align:center}
+  .dica-arraste{font-size:15px;color:var(--azul);margin-top:14px;display:flex;align-items:center;gap:6px}
+  .dica-arraste svg{width:18px;height:18px;flex:none}
+  .presentes{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:230px;gap:24px;margin-top:22px;
+    overflow-x:auto;padding-bottom:20px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  .presentes::-webkit-scrollbar{height:8px}
+  .presentes::-webkit-scrollbar-track{background:var(--suave);border-radius:4px}
+  .presentes::-webkit-scrollbar-thumb{background:var(--azul);border-radius:4px}
+  .presente{scroll-snap-align:start;background:#fff;border:1px solid #dde2d8;border-radius:6px;padding:24px 24px 30px;text-align:center}
   .presente .foto{width:100%;height:150px;border-radius:6px;overflow:hidden;background:var(--suave);margin-bottom:14px}
   .presente .foto img{width:100%;height:100%;object-fit:cover;display:block}
   .presente .emo{font-size:46px;line-height:1}
@@ -189,7 +183,7 @@ if (new URLSearchParams(location.search).get('presentes') === 'nao') {
     <ul>
       <li><a href="#historia">Nossa História</a></li>
       <li><a href="#grande-dia">O Grande Dia</a></li>
-      <li class="nav-presentes"><a href="#presentes">Presentes</a></li>
+      <li><a href="#presentes">Presentes</a></li>
       <li><a href="#confirmar">Confirmar Presença</a></li>
     </ul>
   </nav>
@@ -293,6 +287,7 @@ if (new URLSearchParams(location.search).get('presentes') === 'nao') {
   <div class="wrap">
     <h2 class="titulo surge">Lista de presentes</h2>
     <p class="sub surge">Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha uma ou mais cotas abaixo.</p>
+    <p class="dica-arraste surge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg> Arraste para o lado para ver todos os presentes</p>
     <div class="presentes" id="lista-presentes"></div>
 
     <div class="carrinho-total surge"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
