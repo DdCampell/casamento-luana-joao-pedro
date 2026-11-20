@@ -385,10 +385,10 @@ function virarDigito(digitoEl, novoValor){
   metadeCima.textContent = novoValor;
   abaCima.textContent = valorAntigo;   // plaquinha de cima: mostra o valor antigo e dobra pra baixo
   abaBaixo.textContent = novoValor;    // plaquinha de baixo: já é o valor novo, desdobra revelando
-  // o fundo de baixo só troca no instante em que a aba de baixo começa a desdobrar
-  // (senão o número novo aparece embaixo antes mesmo da plaquinha virar)
+  // o fundo de baixo só troca quando o flip inteiro já terminou de virar
+  // (senão o número novo aparece embaixo antes da animação acabar)
   if (digitoEl._timeoutBaixo) clearTimeout(digitoEl._timeoutBaixo);
-  digitoEl._timeoutBaixo = setTimeout(()=>{ metadeBaixo.textContent = novoValor; }, 300);
+  digitoEl._timeoutBaixo = setTimeout(()=>{ metadeBaixo.textContent = novoValor; }, 600);
   const abaCimaEl = digitoEl.querySelector('.flip-aba.cima');
   const abaBaixoEl = digitoEl.querySelector('.flip-aba.baixo');
   abaCimaEl.classList.remove('virar'); abaBaixoEl.classList.remove('virar');
