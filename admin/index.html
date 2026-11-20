@@ -63,7 +63,7 @@
 
 <script>
 // Cole aqui a mesma URL do Worker que está no index.html do site (CASAMENTO.backendUrl).
-const BACKEND_URL = "";
+const BACKEND_URL = "https://casamento-backend.ddcampell.workers.dev";
 
 const brl = v => 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
 const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
