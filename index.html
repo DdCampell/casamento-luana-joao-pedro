@@ -140,13 +140,18 @@
   .presente .stepper button{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--azul);background:#fff;color:var(--azul-escuro);font-size:22px;line-height:1;cursor:pointer}
   .presente .stepper button:active{background:var(--suave)}
   .presente .stepper .qtd{min-width:28px;font-size:21px;font-weight:600;color:var(--azul-escuro)}
-  .opcoes-pagamento{display:grid;grid-template-columns:1fr 1fr;gap:28px;max-width:980px;margin:46px auto 0;align-items:start}
-  .opcao-pagar{background:var(--suave);border-radius:6px;padding:30px;text-align:center;height:100%}
-  .opcao-pagar h3{font-size:22px;color:var(--azul-escuro);margin-bottom:18px}
-  .carrinho-total{display:flex;align-items:center;justify-content:center;gap:12px;font-size:22px;margin-bottom:18px}
+  .carrinho-total{display:flex;align-items:center;justify-content:center;gap:12px;font-size:22px;margin:40px 0 24px}
   .carrinho-total strong{font-size:30px;color:var(--azul-escuro)}
+  .metodo-selector{display:flex;justify-content:center;gap:20px;max-width:480px;margin:0 auto}
+  .metodo-btn{flex:1;background:#fff;border:2px solid #bfc9bb;border-radius:8px;padding:20px 10px;font-size:19px;font-weight:600;color:var(--azul-escuro);cursor:pointer;font-family:inherit;line-height:1.6}
+  .metodo-btn:hover{border-color:var(--azul)}
+  .metodo-btn.ativo{border-color:var(--azul);background:var(--suave)}
+  .opcoes-pagamento{max-width:640px;margin:28px auto 0}
+  .opcao-pagar{background:var(--suave);border-radius:6px;padding:30px;text-align:center}
+  .opcao-pagar h3{font-size:22px;color:var(--azul-escuro);margin-bottom:18px}
   #pagar-cartao:disabled{opacity:.5;cursor:not-allowed}
-  .pix .chave{font-size:24px;font-weight:600;color:var(--azul-escuro);word-break:break-all;margin:8px 0}
+  .pix .chave{font-size:28px;font-weight:600;color:var(--azul-escuro);word-break:break-all;margin:8px 0}
+  #pix-qrcode img{max-width:260px;width:100%;height:auto;border-radius:6px;background:#fff;padding:10px}
 
   /* rsvp */
   form{max-width:680px;margin:40px auto 0;display:grid;gap:22px}
@@ -180,7 +185,6 @@
     .historia{grid-template-columns:1fr}
     .galeria{grid-template-columns:repeat(2,1fr);gap:14px}
     .linha{grid-template-columns:1fr}
-    .opcoes-pagamento{grid-template-columns:1fr}
     .hero .canto{width:52vw}
     .hero .canto.tl{top:60px}
     .hero .canto.tr{top:56px}
@@ -352,11 +356,17 @@
     <p class="sub surge">Sua presença é o nosso maior presente! Mas, se quiser nos presentear, escolha uma ou mais cotas abaixo.</p>
     <div class="presentes" id="lista-presentes"></div>
 
-    <p class="sub surge" style="margin-top:10px"><strong>Como prefere presentear?</strong> Escolha uma das opções abaixo.</p>
+    <div class="carrinho-total surge"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
+
+    <p class="sub surge" style="margin-top:0"><strong>Como prefere presentear?</strong> Escolha uma das opções abaixo.</p>
+    <div class="metodo-selector surge">
+      <button type="button" class="metodo-btn" data-metodo="cartao">💳<br>Cartão</button>
+      <button type="button" class="metodo-btn" data-metodo="pix">🔑<br>Pix</button>
+    </div>
+
     <div class="opcoes-pagamento">
-      <div class="opcao-pagar carrinho surge" id="carrinho">
+      <div class="opcao-pagar carrinho" id="carrinho" style="display:none">
         <h3>💳 Pagar com cartão</h3>
-        <div class="carrinho-total"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
         <div style="text-align:left;max-width:420px;margin:0 auto 20px">
           <div style="margin-bottom:14px"><label for="presente-nome">Seu nome</label><input type="text" id="presente-nome" placeholder="Ex.: Maria da Silva"></div>
           <div><label for="presente-msg">Mensagem para o casal (opcional)</label><textarea id="presente-msg" rows="3" placeholder="Escreva aqui seu carinho…"></textarea></div>
@@ -365,14 +375,15 @@
         <p class="aviso" id="aviso-cartao"></p>
       </div>
 
-      <div class="opcao-pagar pix surge">
+      <div class="opcao-pagar pix" id="painel-pix" style="display:none">
         <h3>🔑 Pagar com Pix</h3>
-        <p>Chave Pix</p>
-        <div class="chave" id="chave-pix">seuemail@exemplo.com</div>
-        <p style="font-size:17px">Nome do titular · Banco</p>
-        <p style="font-size:17px;margin-top:6px">Valor a enviar: <strong id="pix-valor">o que escolher acima, ou o quanto quiser</strong></p>
-        <button class="botao" id="copiar">Copiar chave Pix</button>
+        <p>Chave Pix (celular)</p>
+        <div class="chave" id="chave-pix">89981097769</div>
+        <p style="font-size:17px;margin-top:6px">Valor: <strong id="pix-valor">escolha os presentes acima, ou escaneie e digite o quanto quiser</strong></p>
+        <button class="botao" id="copiar">Copiar código Pix (copia e cola)</button>
         <p class="aviso" id="aviso-pix"></p>
+        <div id="pix-qrcode" style="margin-top:22px"></div>
+        <p style="font-size:15px;margin-top:10px;color:var(--tinta)">Escaneie o QR Code com o app do seu banco, ou copie o código acima e cole na opção "Pix Copia e Cola" — o valor e a chave já vêm preenchidos.</p>
       </div>
     </div>
   </div>
@@ -533,15 +544,57 @@ PRESENTES.forEach(p=>{
 function totalCarrinho(){
   return PRESENTES.reduce((soma,p)=> soma + (carrinho[p.id]||0)*p.valor, 0);
 }
+
+/* ---- gerar código Pix (BR Code) com valor dinâmico + QR Code ---- */
+const PIX = { chave: '+5589981097769', nome: 'LUANA E JOAO PEDRO', cidade: 'TERESINA' };
+function crc16(str){
+  let crc = 0xFFFF;
+  for(let i=0;i<str.length;i++){
+    crc ^= (str.charCodeAt(i) << 8);
+    for(let j=0;j<8;j++){
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,'0');
+}
+function tlv(id,valor){ return id + String(valor.length).padStart(2,'0') + valor; }
+function montarCodigoPix(valor){
+  const temValor = valor > 0;
+  const conta = tlv('00','br.gov.bcb.pix') + tlv('01',PIX.chave) + tlv('02','Presente de casamento');
+  let payload = tlv('00','01') + tlv('01', temValor?'12':'11') + tlv('26',conta) +
+    tlv('52','0000') + tlv('53','986') + (temValor?tlv('54',valor.toFixed(2)):'') +
+    tlv('58','BR') + tlv('59',PIX.nome) + tlv('60',PIX.cidade) + tlv('62',tlv('05','***')) + '6304';
+  return payload + crc16(payload);
+}
+function atualizarPix(total){
+  const codigo = montarCodigoPix(total);
+  document.getElementById('pix-valor').textContent = total>0 ? brl(total) : 'escolha os presentes acima, ou escaneie e digite o quanto quiser';
+  const qr = document.getElementById('pix-qrcode');
+  qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(codigo)}" alt="QR Code Pix">`;
+  return codigo;
+}
+let pixCodigoAtual = '';
+
 function atualizarCarrinho(){
   const total = totalCarrinho();
   document.getElementById('carrinho-valor').textContent = brl(total);
   const nomePreenchido = document.getElementById('presente-nome').value.trim().length > 0;
   document.getElementById('pagar-cartao').disabled = total <= 0 || !nomePreenchido;
-  document.getElementById('pix-valor').textContent = total>0 ? brl(total) : 'o que escolher acima, ou o quanto quiser';
+  pixCodigoAtual = atualizarPix(total);
 }
 atualizarCarrinho();
 document.getElementById('presente-nome').addEventListener('input', atualizarCarrinho);
+
+/* escolher método de pagamento — só mostra o painel depois de escolher */
+document.querySelectorAll('.metodo-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.metodo-btn').forEach(b=>b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    const metodo = btn.dataset.metodo;
+    document.getElementById('carrinho').style.display = metodo==='cartao' ? 'block' : 'none';
+    document.getElementById('painel-pix').style.display = metodo==='pix' ? 'block' : 'none';
+  });
+});
 
 /* pagar com cartão — chama o backend (worker.js), que fala com o Mercado Pago
    e já grava o pagamento no banco, para aparecer no painel /admin */
@@ -575,12 +628,11 @@ document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
   }
 });
 
-/* copiar Pix */
+/* copiar código Pix (copia e cola) — já com valor e chave preenchidos */
 document.getElementById('copiar').addEventListener('click',async()=>{
-  const chave = document.getElementById('chave-pix').textContent.trim();
   const aviso = document.getElementById('aviso-pix');
-  try{ await navigator.clipboard.writeText(chave); aviso.textContent='Chave copiada! Muito obrigado 💚'; }
-  catch(e){ aviso.textContent='Não deu para copiar automaticamente. Selecione a chave acima e copie.'; }
+  try{ await navigator.clipboard.writeText(pixCodigoAtual); aviso.textContent='Código copiado! Agora é só colar no "Pix Copia e Cola" do seu banco. Muito obrigado 💚'; }
+  catch(e){ aviso.textContent='Não deu para copiar automaticamente. Escaneie o QR Code acima com o app do seu banco.'; }
 });
 
 /* confirmação: grava no backend, para aparecer no painel /admin
