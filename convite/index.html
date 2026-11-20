@@ -24,7 +24,7 @@
   .script{font-family:'Pinyon Script',cursive;font-weight:400}
 
   /* ---------- MENU ---------- */
-  header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:flex-end;
     padding:18px 5vw;transition:background .35s,box-shadow .35s}
   header.solid{background:rgba(247,248,250,.94);backdrop-filter:blur(6px);box-shadow:0 1px 0 rgba(31,58,43,.12)}
   .mono{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:44px;line-height:1;text-decoration:none;color:var(--azul-escuro);letter-spacing:.06em}
@@ -177,7 +177,6 @@
 
 <!-- ===================== MENU ===================== -->
 <header id="topo">
-  <a href="#inicio" class="mono" id="monograma">L + J</a>
   <nav>
     <button class="burger" aria-label="Abrir menu" onclick="document.querySelector('nav ul').classList.toggle('aberto')"><span></span><span></span><span></span></button>
     <ul>
@@ -191,6 +190,7 @@
 <!-- ===================== CAPA ===================== -->
 <section class="hero" id="inicio">
   <!-- cantos florais + monograma (imagem enviada, recortada em pedaços para não distorcer) -->
+  <img class="canto-foto tl" src="../fundo-canto-tl.jpg" alt="" aria-hidden="true">
   <img class="canto-foto tr" src="../fundo-canto-tr.jpg" alt="" aria-hidden="true">
   <img class="canto-foto bl" src="../fundo-canto-bl.jpg" alt="" aria-hidden="true">
   <img class="canto-foto br" src="../fundo-canto-br.jpg" alt="" aria-hidden="true">
@@ -332,7 +332,6 @@ const CASAMENTO = {
 document.getElementById('n1').textContent = CASAMENTO.noiva;
 document.getElementById('n2').textContent = CASAMENTO.noivo;
 const mono = CASAMENTO.noiva[0] + ' + ' + CASAMENTO.noivo[0];
-document.getElementById('monograma').textContent = mono;
 document.getElementById('mono-rodape').textContent = mono;
 document.title = CASAMENTO.noiva + ' & ' + CASAMENTO.noivo + ' · Casamento';
 const alvo = new Date(CASAMENTO.data);
