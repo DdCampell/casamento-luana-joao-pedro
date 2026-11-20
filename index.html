@@ -132,7 +132,9 @@
 
   /* presentes */
   .presentes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px;margin-top:46px}
-  .presente{background:#fff;border:1px solid #dde2d8;border-radius:6px;padding:30px 24px;text-align:center}
+  .presente{background:#fff;border:1px solid #dde2d8;border-radius:6px;padding:24px 24px 30px;text-align:center}
+  .presente .foto{width:100%;height:150px;border-radius:6px;overflow:hidden;background:var(--suave);margin-bottom:14px}
+  .presente .foto img{width:100%;height:100%;object-fit:cover;display:block}
   .presente .emo{font-size:46px;line-height:1}
   .presente h4{font-size:21px;font-weight:600;margin:14px 0 4px;color:var(--azul-escuro)}
   .presente .valor{font-size:24px;color:var(--azul);font-weight:500}
@@ -412,18 +414,18 @@ const CASAMENTO = {
   backendUrl: "https://casamento-backend.ddcampell.workers.dev"
 };
 
-/* lista de presentes — edite valores, nomes e emojis aqui */
+/* lista de presentes — edite valores, nomes e fotos aqui */
 const PRESENTES = [
-  {id:'passagens', emo:'✈️', nome:'Passagens da lua de mel',     valor:300},
-  {id:'hospedagem',emo:'🏨', nome:'Diária de hotel',              valor:220},
-  {id:'passeio',   emo:'🏝️', nome:'Passeio de lua de mel',        valor:180},
-  {id:'jantar',    emo:'🍽️', nome:'Jantar romântico',            valor:150},
-  {id:'spa',       emo:'💆', nome:'Dia de spa a dois',            valor:200},
-  {id:'transfer',  emo:'🚕', nome:'Translado no destino',         valor:90},
-  {id:'sofa',      emo:'🛋️', nome:'Sofá novo do casal',          valor:250},
-  {id:'cafe',      emo:'☕', nome:'Café da manhã na cama',        valor:80},
-  {id:'vinho',     emo:'🍷', nome:'Jantar com vinho especial',    valor:120},
-  {id:'lembranca', emo:'🎁', nome:'Lembrancinha de viagem',       valor:60},
+  {id:'airfryer',  foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Airfryer.jpg',                                   nome:'Air fryer',               valor:280},
+  {id:'liquidificador', foto:'https://commons.wikimedia.org/wiki/Special:FilePath/ElectricBlender.jpg',                       nome:'Liquidificador',          valor:150},
+  {id:'panelas',   foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Copper-saucepot.jpg',                             nome:'Jogo de panelas',         valor:320},
+  {id:'cama',      foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Prze%C5%9Bcierad%C5%82o.jpg',                     nome:'Jogo de cama king',       valor:180},
+  {id:'toalhas',   foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Towel_MET_63415.jpg',                            nome:'Jogo de toalhas',         valor:150},
+  {id:'cafeteira', foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Coffee_pot_moka.jpg',                             nome:'Cafeteira',               valor:120},
+  {id:'microondas',foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Panasonic_NN-SD69LS_20220410.jpg',               nome:'Micro-ondas',             valor:450},
+  {id:'sofa',      foto:'https://commons.wikimedia.org/wiki/Special:FilePath/2009-05-16_Main_office_lobby_at_Hampton_Forest_Apartments.jpg', nome:'Sofá',      valor:900},
+  {id:'mesa',      foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Table_and_chairs.jpg',                            nome:'Mesa de jantar',          valor:650},
+  {id:'tacas',     foto:'https://commons.wikimedia.org/wiki/Special:FilePath/Red_Wine_Glas.jpg',                               nome:'Jogo de taças de vinho',  valor:90},
 ];
 
 /* nomes, monograma e data */
@@ -502,7 +504,7 @@ const listaEl = document.getElementById('lista-presentes');
 PRESENTES.forEach(p=>{
   const card = document.createElement('div');
   card.className = 'presente surge';
-  card.innerHTML = `<div class="emo">${p.emo}</div><h4>${p.nome}</h4><div class="valor">${brl(p.valor)}</div>
+  card.innerHTML = `<div class="foto"><img src="${p.foto}" alt="${p.nome}" loading="lazy"></div><h4>${p.nome}</h4><div class="valor">${brl(p.valor)}</div>
     <div class="stepper">
       <button type="button" data-acao="menos" aria-label="Diminuir">−</button>
       <span class="qtd">0</span>
