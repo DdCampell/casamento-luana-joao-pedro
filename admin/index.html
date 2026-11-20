@@ -29,6 +29,15 @@
   .status-recusado{color:#a33;font-weight:600}
   .vazio{color:#777;padding:14px}
   .config{max-width:420px;margin:80px auto;background:#fff;padding:30px;border-radius:8px;text-align:center}
+  .btn-excluir{background:none;border:1px solid #d8a9a9;color:#a33;width:28px;height:28px;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;padding:0}
+  .btn-excluir:hover{background:#a33;color:#fff}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:10}
+  .overlay.aberto{display:flex}
+  .modal{background:#fff;max-width:360px;width:90%;padding:26px;border-radius:8px;text-align:center}
+  .modal p{margin:0 0 20px;font-size:15px;line-height:1.5}
+  .modal .acoes{display:flex;gap:10px}
+  .modal .acoes button{width:auto;flex:1;margin-top:0}
+  .btn-cancelar{background:#e4e6e0!important;color:#1f3a2b!important}
 </style>
 </head>
 <body>
@@ -51,12 +60,22 @@
   </div>
 
   <h2>Confirmações de presença</h2>
-  <table><thead><tr><th>Data</th><th>Nome</th><th>Vai?</th><th>Pessoas</th><th>Recado</th></tr></thead>
+  <table><thead><tr><th>Data</th><th>Nome</th><th>Vai?</th><th>Pessoas</th><th>Recado</th><th></th></tr></thead>
     <tbody id="tabela-confirmacoes"></tbody></table>
 
   <h2>Pagamentos de presentes</h2>
   <table><thead><tr><th>Data</th><th>Itens</th><th>Valor</th><th>Status</th><th>Nome do convidado</th><th>Mensagem</th><th>Pagador (MP)</th><th>E-mail</th></tr></thead>
     <tbody id="tabela-pagamentos"></tbody></table>
+</div>
+
+<div class="overlay" id="overlay-excluir">
+  <div class="modal">
+    <p>Remover a confirmação de <strong id="nome-excluir"></strong>?<br>Essa ação não pode ser desfeita.</p>
+    <div class="acoes">
+      <button class="btn-cancelar" id="cancelar-excluir" type="button">Cancelar</button>
+      <button id="confirmar-excluir" type="button">Remover</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -68,6 +87,7 @@ const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','
 
 const telaLogin = document.getElementById('tela-login');
 const painel = document.getElementById('painel');
+let credenciais = null; // guarda usuario/senha depois do login, para poder excluir depois
 
 if(!BACKEND_URL){
   telaLogin.outerHTML = '<div class="config"><h1>Painel ainda não configurado</h1><p>Abra este arquivo (admin/index.html) e cole a URL do backend na constante <code>BACKEND_URL</code>, no topo do script.</p></div>';
@@ -86,6 +106,7 @@ if(!BACKEND_URL){
       });
       const dados = await resp.json();
       if(!resp.ok || !dados.ok){ throw new Error(dados.erro || 'Não foi possível entrar.'); }
+      credenciais = {usuario, senha};
       mostrarPainel(dados);
     }catch(err){
       erro.textContent = err.message || 'Usuário ou senha incorretos.';
@@ -105,8 +126,9 @@ function mostrarPainel(dados){
   const tConf = document.getElementById('tabela-confirmacoes');
   tConf.innerHTML = dados.confirmacoes.length ? dados.confirmacoes.map(c=>`<tr>
       <td>${esc(c.criado_em)}</td><td>${esc(c.nome)}</td><td>${esc(c.vai)}</td>
-      <td>${esc(c.pessoas)}</td><td>${esc(c.mensagem||'')}</td></tr>`).join('')
-    : '<tr><td colspan="5" class="vazio">Nenhuma confirmação ainda.</td></tr>';
+      <td>${esc(c.pessoas)}</td><td>${esc(c.mensagem||'')}</td>
+      <td><button class="btn-excluir" type="button" data-id="${esc(c.id)}" data-nome="${esc(c.nome)}" title="Remover">✕</button></td></tr>`).join('')
+    : '<tr><td colspan="6" class="vazio">Nenhuma confirmação ainda.</td></tr>';
 
   const tPag = document.getElementById('tabela-pagamentos');
   const pagamentos = dados.pagamentos.filter(p => p.status !== 'pendente');
@@ -116,7 +138,53 @@ function mostrarPainel(dados){
       <td>${esc(p.convidado_nome||'')}</td><td>${esc(p.mensagem||'')}</td>
       <td>${esc(p.pagador_nome||'')}</td><td>${esc(p.pagador_email||'')}</td></tr>`).join('')
     : '<tr><td colspan="8" class="vazio">Nenhum pagamento ainda.</td></tr>';
+
+  tConf.querySelectorAll('.btn-excluir').forEach(btn=>{
+    btn.addEventListener('click', ()=> abrirExclusao(btn.dataset.id, btn.dataset.nome));
+  });
 }
+
+/* ---------------- excluir confirmação (com caixinha de confirmação) ---------------- */
+const overlayExcluir = document.getElementById('overlay-excluir');
+let idParaExcluir = null;
+
+function abrirExclusao(id, nome){
+  idParaExcluir = id;
+  document.getElementById('nome-excluir').textContent = nome || 'este convidado';
+  overlayExcluir.classList.add('aberto');
+}
+function fecharExclusao(){
+  idParaExcluir = null;
+  overlayExcluir.classList.remove('aberto');
+}
+document.getElementById('cancelar-excluir').addEventListener('click', fecharExclusao);
+overlayExcluir.addEventListener('click', (e)=>{ if(e.target === overlayExcluir) fecharExclusao(); });
+
+document.getElementById('confirmar-excluir').addEventListener('click', async ()=>{
+  if(!idParaExcluir || !credenciais) return;
+  const botao = document.getElementById('confirmar-excluir');
+  botao.disabled = true; botao.textContent = 'Removendo…';
+  try{
+    const resp = await fetch(BACKEND_URL + '/admin-api', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({...credenciais, acao:'excluir_confirmacao', id:idParaExcluir})
+    });
+    const dados = await resp.json();
+    if(!resp.ok || !dados.ok) throw new Error(dados.erro || 'Não foi possível remover.');
+    fecharExclusao();
+    // busca os dados atualizados para o resumo (pessoas confirmadas) ficar certo
+    const resp2 = await fetch(BACKEND_URL + '/admin-api', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(credenciais)
+    });
+    const dados2 = await resp2.json();
+    if(resp2.ok && dados2.ok) mostrarPainel(dados2);
+  }catch(err){
+    alert(err.message || 'Não foi possível remover a confirmação.');
+  }finally{
+    botao.disabled = false; botao.textContent = 'Remover';
+  }
+});
 
 document.getElementById('sair')?.addEventListener('click', ()=>location.reload());
 </script>

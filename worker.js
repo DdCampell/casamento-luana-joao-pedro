@@ -173,6 +173,13 @@ async function adminApi(request, env) {
     return json({ erro: 'Usuário ou senha incorretos.' }, 401);
   }
 
+  if (body.acao === 'excluir_confirmacao') {
+    const id = parseInt(body.id, 10);
+    if (!id) return json({ erro: 'ID inválido' }, 400);
+    await env.DB.prepare('DELETE FROM confirmacoes WHERE id = ?').bind(id).run();
+    return json({ ok: true });
+  }
+
   const confirmacoes = await env.DB.prepare('SELECT * FROM confirmacoes ORDER BY id DESC').all();
   const pagamentos = await env.DB.prepare('SELECT * FROM pagamentos ORDER BY id DESC').all();
 
