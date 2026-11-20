@@ -439,11 +439,14 @@ function virarDigito(digitoEl, novoValor){
   const abaBaixo = digitoEl.querySelector('.flip-aba.baixo span');
   const metadeCima = digitoEl.querySelector('.flip-metade.cima span');
   const metadeBaixo = digitoEl.querySelector('.flip-metade.baixo span');
-  // o fundo já assume o valor novo na hora (fica escondido pela plaquinha até ela virar)
+  // o fundo de cima já pode trocar: fica escondido atrás da aba de cima até ela dobrar
   metadeCima.textContent = novoValor;
-  metadeBaixo.textContent = novoValor;
   abaCima.textContent = valorAntigo;   // plaquinha de cima: mostra o valor antigo e dobra pra baixo
   abaBaixo.textContent = novoValor;    // plaquinha de baixo: já é o valor novo, desdobra revelando
+  // o fundo de baixo só troca no instante em que a aba de baixo começa a desdobrar
+  // (senão o número novo aparece embaixo antes mesmo da plaquinha virar)
+  if (digitoEl._timeoutBaixo) clearTimeout(digitoEl._timeoutBaixo);
+  digitoEl._timeoutBaixo = setTimeout(()=>{ metadeBaixo.textContent = novoValor; }, 300);
   const abaCimaEl = digitoEl.querySelector('.flip-aba.cima');
   const abaBaixoEl = digitoEl.querySelector('.flip-aba.baixo');
   abaCimaEl.classList.remove('virar'); abaBaixoEl.classList.remove('virar');
