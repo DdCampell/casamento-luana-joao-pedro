@@ -112,15 +112,6 @@
   .traje{text-align:center;margin-top:40px;font-size:20px}
   .traje strong{color:var(--azul-escuro)}
 
-  /* enquete */
-  .enquete{max-width:760px;margin:40px auto 0;background:rgba(255,255,255,.35);border:1px solid rgba(95,125,104,.3);border-radius:6px}
-  .opcao{display:flex;align-items:center;gap:16px;padding:20px 26px;border-bottom:1px solid rgba(95,125,104,.25);cursor:pointer;font-size:21px;position:relative;overflow:hidden}
-  .opcao:last-child{border-bottom:0}
-  .opcao input{width:24px;height:24px;accent-color:var(--azul);position:relative;z-index:1}
-  .opcao span{position:relative;z-index:1}
-  .opcao .barra{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(95,125,104,.18);transition:width .8s ease}
-  .opcao .pct{margin-left:auto;font-weight:600;color:var(--azul-escuro);position:relative;z-index:1;opacity:0;transition:opacity .4s}
-  .mostrar .pct{opacity:1}
   .centro{text-align:center}
   .aviso{margin-top:16px;font-size:19px;color:var(--azul-escuro);min-height:30px}
 
@@ -322,20 +313,6 @@
   </div>
 </section>
 
-<!-- ===================== ENQUETE ===================== -->
-<section>
-  <div class="wrap">
-    <h2 class="titulo surge">Onde devemos passar a lua de mel?</h2>
-    <div class="enquete" id="enquete">
-      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="0"><span>Fernando de Noronha</span><b class="pct"></b></label>
-      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="1"><span>Gramado</span><b class="pct"></b></label>
-      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="2"><span>Paris</span><b class="pct"></b></label>
-      <label class="opcao"><div class="barra"></div><input type="radio" name="lua" value="3"><span>Cancún</span><b class="pct"></b></label>
-    </div>
-    <div class="centro"><button class="botao" id="votar">Enviar voto</button><p class="aviso" id="aviso-voto"></p></div>
-  </div>
-</section>
-
 <!-- ===================== GALERIA ===================== -->
 <section class="claro">
   <div class="wrap">
@@ -477,24 +454,6 @@ FOTOS.forEach(ft=>{ const f=document.createElement('div'); f.className='foto sur
 const lb=document.getElementById('lightbox'), lbImg=lb.querySelector('img');
 lb.onclick=()=>lb.classList.remove('on');
 addEventListener('keydown',e=>{ if(e.key==='Escape') lb.classList.remove('on'); });
-
-/* enquete */
-const votosBase = [12, 7, 9, 5];
-document.getElementById('votar').addEventListener('click',()=>{
-  const sel = document.querySelector('input[name=lua]:checked');
-  const aviso = document.getElementById('aviso-voto');
-  if(!sel){ aviso.textContent = 'Escolha uma opção antes de votar 😊'; return; }
-  const v = votosBase.slice(); v[+sel.value]++;
-  const tot = v.reduce((a,b)=>a+b,0);
-  document.querySelectorAll('.opcao').forEach((op,i)=>{
-    const p = Math.round(v[i]/tot*100);
-    op.querySelector('.barra').style.width = p+'%';
-    op.querySelector('.pct').textContent = p+'%';
-  });
-  document.getElementById('enquete').classList.add('mostrar');
-  aviso.textContent = 'Obrigado pelo seu voto! 💚';
-  document.getElementById('votar').disabled = true;
-});
 
 /* ---- carrinho de presentes ---- */
 const carrinho = {}; // id -> quantidade
