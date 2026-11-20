@@ -57,7 +57,7 @@
     <tbody id="tabela-confirmacoes"></tbody></table>
 
   <h2>Pagamentos de presentes</h2>
-  <table><thead><tr><th>Data</th><th>Itens</th><th>Valor</th><th>Status</th><th>Pagador</th><th>E-mail</th></tr></thead>
+  <table><thead><tr><th>Data</th><th>Itens</th><th>Valor</th><th>Status</th><th>Nome do convidado</th><th>Mensagem</th><th>Pagador (MP)</th><th>E-mail</th></tr></thead>
     <tbody id="tabela-pagamentos"></tbody></table>
 </div>
 
@@ -115,8 +115,9 @@ function mostrarPainel(dados){
   tPag.innerHTML = dados.pagamentos.length ? dados.pagamentos.map(p=>`<tr>
       <td>${esc(p.criado_em)}</td><td>${esc(p.itens)}</td><td>${brl(p.valor)}</td>
       <td class="status-${esc(p.status)}">${esc(p.status)}</td>
+      <td>${esc(p.convidado_nome||'')}</td><td>${esc(p.mensagem||'')}</td>
       <td>${esc(p.pagador_nome||'')}</td><td>${esc(p.pagador_email||'')}</td></tr>`).join('')
-    : '<tr><td colspan="6" class="vazio">Nenhum pagamento ainda.</td></tr>';
+    : '<tr><td colspan="8" class="vazio">Nenhum pagamento ainda.</td></tr>';
 }
 
 document.getElementById('sair')?.addEventListener('click', ()=>location.reload());

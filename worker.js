@@ -100,11 +100,14 @@ async function checkout(request, env) {
   const total = items.reduce((s, i) => s + i.quantity * i.unit_price, 0);
   const descricao = items.map((i) => `${i.quantity}x ${i.title}`).join(', ');
   const urlBase = new URL(request.url).origin;
+  const convidadoNome = String(body.nome || '').slice(0, 200);
+  const mensagem = String(body.mensagem || '').slice(0, 1000);
 
   const preference = {
     items,
     external_reference: referencia,
     notification_url: urlBase + '/webhook',
+    payer: convidadoNome ? { name: convidadoNome } : undefined,
     back_urls: {
       success: body.success_url || 'https://ddcampell.github.io/casamento-luana-joao-pedro/#presentes',
       pending: body.success_url || 'https://ddcampell.github.io/casamento-luana-joao-pedro/#presentes',
@@ -123,8 +126,8 @@ async function checkout(request, env) {
   const data = await resp.json();
 
   await env.DB.prepare(
-    'INSERT INTO pagamentos (referencia, itens, valor, status) VALUES (?, ?, ?, ?)'
-  ).bind(referencia, descricao, total, 'pendente').run();
+    'INSERT INTO pagamentos (referencia, itens, valor, status, convidado_nome, mensagem) VALUES (?, ?, ?, ?, ?, ?)'
+  ).bind(referencia, descricao, total, 'pendente', convidadoNome, mensagem).run();
 
   return json({ url: data.init_point });
 }

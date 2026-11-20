@@ -16,9 +16,16 @@ CREATE TABLE IF NOT EXISTS pagamentos (
   itens TEXT NOT NULL,
   valor REAL NOT NULL,
   status TEXT NOT NULL DEFAULT 'pendente',
+  convidado_nome TEXT,
+  mensagem TEXT,
   pagador_nome TEXT,
   pagador_email TEXT,
   mp_payment_id TEXT,
   criado_em TEXT NOT NULL DEFAULT (datetime('now')),
   atualizado_em TEXT
 );
+
+-- Se a tabela "pagamentos" já existia antes de 20/11/2026 (sem nome/mensagem
+-- do convidado), rode também estas duas linhas no console do D1:
+-- ALTER TABLE pagamentos ADD COLUMN convidado_nome TEXT;
+-- ALTER TABLE pagamentos ADD COLUMN mensagem TEXT;

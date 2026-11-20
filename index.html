@@ -352,6 +352,10 @@
 
     <div class="carrinho surge" id="carrinho">
       <div class="carrinho-total"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
+      <div style="text-align:left;max-width:420px;margin:0 auto 20px">
+        <div style="margin-bottom:14px"><label for="presente-nome">Seu nome</label><input type="text" id="presente-nome" placeholder="Ex.: Maria da Silva"></div>
+        <div><label for="presente-msg">Mensagem para o casal (opcional)</label><textarea id="presente-msg" rows="3" placeholder="Escreva aqui seu carinho…"></textarea></div>
+      </div>
       <button class="botao" id="pagar-cartao" disabled>Pagar com cartão</button>
       <p class="aviso" id="aviso-cartao"></p>
     </div>
@@ -427,6 +431,7 @@ const PRESENTES = [
   {id:'cafe',      emo:'☕', nome:'Café da manhã na cama',        valor:80},
   {id:'vinho',     emo:'🍷', nome:'Jantar com vinho especial',    valor:120},
   {id:'lembranca', emo:'🎁', nome:'Lembrancinha de viagem',       valor:60},
+  {id:'teste',     emo:'🧪', nome:'Valor de teste (R$1)',         valor:1},
 ];
 
 /* nomes, monograma e data */
@@ -524,17 +529,25 @@ function totalCarrinho(){
 function atualizarCarrinho(){
   const total = totalCarrinho();
   document.getElementById('carrinho-valor').textContent = brl(total);
-  document.getElementById('pagar-cartao').disabled = total <= 0;
+  const nomePreenchido = document.getElementById('presente-nome').value.trim().length > 0;
+  document.getElementById('pagar-cartao').disabled = total <= 0 || !nomePreenchido;
   document.getElementById('pix-valor').textContent = total>0 ? brl(total) : 'o que escolher acima, ou o quanto quiser';
 }
 atualizarCarrinho();
+document.getElementById('presente-nome').addEventListener('input', atualizarCarrinho);
 
 /* pagar com cartão — chama o backend (worker.js), que fala com o Mercado Pago
    e já grava o pagamento no banco, para aparecer no painel /admin */
 document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
   const aviso = document.getElementById('aviso-cartao');
   const total = totalCarrinho();
+  const nome = document.getElementById('presente-nome').value.trim();
+  const mensagem = document.getElementById('presente-msg').value.trim();
   if(total<=0) return;
+  if(!nome){
+    aviso.textContent = 'Por favor, escreva seu nome antes de pagar.';
+    return;
+  }
   if(!CASAMENTO.backendUrl){
     aviso.textContent = 'O pagamento com cartão ainda está sendo configurado. Por enquanto, use o Pix abaixo — obrigado!';
     return;
@@ -544,7 +557,7 @@ document.getElementById('pagar-cartao').addEventListener('click', async ()=>{
   try{
     const resp = await fetch(CASAMENTO.backendUrl + '/checkout', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({items: itens, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
+      body: JSON.stringify({items: itens, nome, mensagem, casal: `${CASAMENTO.noiva} & ${CASAMENTO.noivo}`})
     });
     if(!resp.ok) throw new Error('resposta '+resp.status);
     const data = await resp.json();
