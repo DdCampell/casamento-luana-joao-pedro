@@ -315,20 +315,25 @@
     <div class="carrinho-total surge"><span>Total selecionado</span><strong id="carrinho-valor">R$ 0</strong></div>
 
     <div class="opcao-pagar carrinho surge" id="carrinho">
-      <h3>💳🔑 Pagar presente</h3>
+      <h3>💳 Pagar com cartão</h3>
       <div style="text-align:left;max-width:420px;margin:0 auto 20px">
         <div style="margin-bottom:14px"><label for="presente-nome">Seu nome</label><input type="text" id="presente-nome" placeholder="Ex.: Maria da Silva"></div>
         <div><label for="presente-msg">Mensagem para o casal (opcional)</label><textarea id="presente-msg" rows="3" placeholder="Escreva aqui seu carinho…"></textarea></div>
       </div>
       <div class="botoes-pagar">
         <button class="botao" id="pagar-cartao" disabled>Pagar com cartão</button>
-        <button class="botao contorno" id="fazer-pix" type="button">Fazer Pix</button>
       </div>
       <p class="aviso" id="aviso-cartao"></p>
       <p style="font-size:15px;margin-top:10px;color:var(--tinta)">No cartão, você paga na própria página do Mercado Pago, com total segurança.</p>
+    </div>
+
+    <div class="opcao-pagar surge" id="opcao-pix">
+      <h3>🔑 Ou pague com Pix</h3>
+      <div class="botoes-pagar">
+        <button class="botao contorno" id="fazer-pix" type="button">Fazer Pix</button>
+      </div>
 
       <div id="painel-pix" style="display:none">
-        <h3>🔑 Pagar com Pix</h3>
         <p>Chave Pix (CPF)</p>
         <div class="chave" id="chave-pix">038.839.453-66</div>
         <p style="font-size:17px;margin-top:6px">Valor: <strong id="pix-valor"></strong></p>
@@ -426,7 +431,7 @@ const PRESENTES = [
 /* nomes, monograma e data */
 document.getElementById('n1').textContent = CASAMENTO.noivo;
 document.getElementById('n2').textContent = CASAMENTO.noiva;
-const mono = CASAMENTO.noiva[0] + ' + ' + CASAMENTO.noivo[0];
+const mono = CASAMENTO.noivo[0] + ' + ' + CASAMENTO.noiva[0];
 document.getElementById('mono-rodape').textContent = mono;
 document.title = CASAMENTO.noiva + ' & ' + CASAMENTO.noivo + ' · Casamento';
 const alvo = new Date(CASAMENTO.data);
