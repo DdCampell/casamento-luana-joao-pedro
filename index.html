@@ -152,6 +152,11 @@
   .opcao-pagar{max-width:480px;margin:28px auto 0;background:var(--suave);border-radius:6px;padding:30px;text-align:center}
   .opcao-pagar h3{font-size:22px;color:var(--azul-escuro);margin-bottom:18px}
   #pagar-cartao:disabled{opacity:.5;cursor:not-allowed}
+  .botoes-pagar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .botoes-pagar .botao{width:auto;min-width:160px}
+  #painel-pix{border-top:1px solid #d4dcce;margin-top:26px;padding-top:22px}
+  #painel-pix .chave{font-size:22px;font-weight:600;color:var(--azul-escuro);word-break:break-all;margin:8px 0}
+  #pix-qrcode img{max-width:230px;width:100%;height:auto;border-radius:6px;background:#fff;padding:10px;margin-top:14px}
 
   /* rsvp */
   form{max-width:680px;margin:40px auto 0;display:grid;gap:22px}
@@ -315,9 +320,23 @@
         <div style="margin-bottom:14px"><label for="presente-nome">Seu nome</label><input type="text" id="presente-nome" placeholder="Ex.: Maria da Silva"></div>
         <div><label for="presente-msg">Mensagem para o casal (opcional)</label><textarea id="presente-msg" rows="3" placeholder="Escreva aqui seu carinho…"></textarea></div>
       </div>
-      <button class="botao" id="pagar-cartao" disabled>Pagar</button>
+      <div class="botoes-pagar">
+        <button class="botao" id="pagar-cartao" disabled>Pagar com cartão</button>
+        <button class="botao contorno" id="fazer-pix" type="button">Fazer Pix</button>
+      </div>
       <p class="aviso" id="aviso-cartao"></p>
-      <p style="font-size:15px;margin-top:10px;color:var(--tinta)">Você escolhe cartão ou Pix na própria página do Mercado Pago, com total segurança.</p>
+      <p style="font-size:15px;margin-top:10px;color:var(--tinta)">No cartão, você paga na própria página do Mercado Pago, com total segurança.</p>
+
+      <div id="painel-pix" style="display:none">
+        <h3>🔑 Pagar com Pix</h3>
+        <p>Chave Pix (CPF)</p>
+        <div class="chave" id="chave-pix">038.839.453-66</div>
+        <p style="font-size:17px;margin-top:6px">Valor: <strong id="pix-valor"></strong></p>
+        <div id="pix-qrcode"></div>
+        <button class="botao" id="copiar-pix" type="button" style="margin-top:16px">Copiar código Pix (copia e cola)</button>
+        <p class="aviso" id="aviso-pix"></p>
+        <p style="font-size:15px;margin-top:10px;color:var(--tinta)">Escaneie o QR Code com o app do seu banco, ou copie o código acima e cole na opção "Pix Copia e Cola" — o valor e a chave já vêm preenchidos.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -405,8 +424,8 @@ const PRESENTES = [
 ];
 
 /* nomes, monograma e data */
-document.getElementById('n1').textContent = CASAMENTO.noiva;
-document.getElementById('n2').textContent = CASAMENTO.noivo;
+document.getElementById('n1').textContent = CASAMENTO.noivo;
+document.getElementById('n2').textContent = CASAMENTO.noiva;
 const mono = CASAMENTO.noiva[0] + ' + ' + CASAMENTO.noivo[0];
 document.getElementById('mono-rodape').textContent = mono;
 document.title = CASAMENTO.noiva + ' & ' + CASAMENTO.noivo + ' · Casamento';
@@ -529,14 +548,57 @@ function totalCarrinho(){
   return PRESENTES.reduce((soma,p)=> soma + (carrinho[p.id]||0)*p.valor, 0);
 }
 
+/* ---- gerar código Pix (BR Code) com valor dinâmico + QR Code ---- */
+const PIX = { chave: '03883945366', nome: 'LUANA E JOAO PEDRO', cidade: 'TERESINA' };
+function crc16(str){
+  let crc = 0xFFFF;
+  for(let i=0;i<str.length;i++){
+    crc ^= (str.charCodeAt(i) << 8);
+    for(let j=0;j<8;j++){
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4,'0');
+}
+function tlv(id,valor){ return id + String(valor.length).padStart(2,'0') + valor; }
+function montarCodigoPix(valor){
+  const temValor = valor > 0;
+  const conta = tlv('00','br.gov.bcb.pix') + tlv('01',PIX.chave) + tlv('02','Presente de casamento');
+  let payload = tlv('00','01') + tlv('01', temValor?'12':'11') + tlv('26',conta) +
+    tlv('52','0000') + tlv('53','986') + (temValor?tlv('54',valor.toFixed(2)):'') +
+    tlv('58','BR') + tlv('59',PIX.nome) + tlv('60',PIX.cidade) + tlv('62',tlv('05','***')) + '6304';
+  return payload + crc16(payload);
+}
+let pixCodigoAtual = '';
+function atualizarPix(total){
+  pixCodigoAtual = montarCodigoPix(total);
+  document.getElementById('pix-valor').textContent = total>0 ? brl(total) : 'escolha os presentes acima, ou escaneie e digite o quanto quiser';
+  document.getElementById('pix-qrcode').innerHTML =
+    `<img src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(pixCodigoAtual)}" alt="QR Code Pix">`;
+}
+
 function atualizarCarrinho(){
   const total = totalCarrinho();
   document.getElementById('carrinho-valor').textContent = brl(total);
   const nomePreenchido = document.getElementById('presente-nome').value.trim().length > 0;
   document.getElementById('pagar-cartao').disabled = total <= 0 || !nomePreenchido;
+  atualizarPix(total);
 }
 atualizarCarrinho();
 document.getElementById('presente-nome').addEventListener('input', atualizarCarrinho);
+
+/* botão "Fazer Pix" — mostra/esconde o painel com QR Code e código copia-e-cola */
+document.getElementById('fazer-pix').addEventListener('click', ()=>{
+  const painel = document.getElementById('painel-pix');
+  const aberto = painel.style.display !== 'none';
+  painel.style.display = aberto ? 'none' : 'block';
+  if(!aberto) painel.scrollIntoView({behavior:'smooth', block:'center'});
+});
+document.getElementById('copiar-pix').addEventListener('click', async ()=>{
+  const aviso = document.getElementById('aviso-pix');
+  try{ await navigator.clipboard.writeText(pixCodigoAtual); aviso.textContent='Código copiado! Agora é só colar no "Pix Copia e Cola" do seu banco. Muito obrigado 💚'; }
+  catch(e){ aviso.textContent='Não deu para copiar automaticamente. Escaneie o QR Code acima com o app do seu banco.'; }
+});
 
 /* pagar (cartão ou Pix) — chama o backend (worker.js), que cria a preferência no
    Mercado Pago e já grava o pagamento no banco, para aparecer no painel /admin.
