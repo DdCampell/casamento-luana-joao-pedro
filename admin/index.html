@@ -10,6 +10,10 @@
   body{font-family:system-ui,Arial,sans-serif;background:#f4f3ee;color:#1f3a2b;margin:0;padding:24px}
   h1{font-size:28px;margin:0 0 20px}
   h2{font-size:20px;margin:36px 0 10px}
+  .filtros-pag{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .filtros-pag select,.filtros-pag input{padding:9px 12px;font-size:14px;border:1px solid #bfc9bb;border-radius:4px;background:#fff}
+  .filtros-pag select{width:auto}
+  .filtros-pag input{flex:1;min-width:200px}
   .caixa-login{max-width:380px;margin:80px auto;background:#fff;padding:36px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
   label{display:block;margin-bottom:16px;font-size:15px}
   input{width:100%;padding:12px;font-size:16px;margin-top:6px;border:1px solid #bfc9bb;border-radius:4px}
@@ -64,6 +68,14 @@
     <tbody id="tabela-confirmacoes"></tbody></table>
 
   <h2>Pagamentos de presentes</h2>
+  <div class="filtros-pag">
+    <select id="filtro-status">
+      <option value="todos">Todos os status</option>
+      <option value="aprovado">Aprovados</option>
+      <option value="cancelado">Cancelados</option>
+    </select>
+    <input type="text" id="busca-pagamentos" placeholder="Buscar por nome, item, mensagem ou e-mail...">
+  </div>
   <table><thead><tr><th>Data</th><th>Itens</th><th>Valor</th><th>Status</th><th>Nome do convidado</th><th>Mensagem</th><th>Pagador (MP)</th><th>E-mail</th></tr></thead>
     <tbody id="tabela-pagamentos"></tbody></table>
 </div>
@@ -130,19 +142,41 @@ function mostrarPainel(dados){
       <td><button class="btn-excluir" type="button" data-id="${esc(c.id)}" data-nome="${esc(c.nome)}" title="Remover">✕</button></td></tr>`).join('')
     : '<tr><td colspan="6" class="vazio">Nenhuma confirmação ainda.</td></tr>';
 
-  const tPag = document.getElementById('tabela-pagamentos');
-  const pagamentos = dados.pagamentos.filter(p => p.status !== 'pendente');
-  tPag.innerHTML = pagamentos.length ? pagamentos.map(p=>`<tr>
-      <td>${esc(p.criado_em)}</td><td>${esc(p.itens)}</td><td>${brl(p.valor)}</td>
-      <td class="status-${esc(p.status)}">${esc(p.status)}</td>
-      <td>${esc(p.convidado_nome||'')}</td><td>${esc(p.mensagem||'')}</td>
-      <td>${esc(p.pagador_nome||'')}</td><td>${esc(p.pagador_email||'')}</td></tr>`).join('')
-    : '<tr><td colspan="8" class="vazio">Nenhum pagamento ainda.</td></tr>';
+  pagamentosAtuais = dados.pagamentos.filter(p => p.status !== 'pendente');
+  renderizarPagamentos();
 
   tConf.querySelectorAll('.btn-excluir').forEach(btn=>{
     btn.addEventListener('click', ()=> abrirExclusao(btn.dataset.id, btn.dataset.nome));
   });
 }
+
+/* ---------------- filtro de status + busca na tabela de pagamentos ---------------- */
+let pagamentosAtuais = [];
+function renderizarPagamentos(){
+  const tPag = document.getElementById('tabela-pagamentos');
+  const filtro = document.getElementById('filtro-status').value;
+  const busca = document.getElementById('busca-pagamentos').value.trim().toLowerCase();
+
+  let lista = pagamentosAtuais;
+  if (filtro === 'aprovado') {
+    lista = lista.filter(p => p.status === 'aprovado');
+  } else if (filtro === 'cancelado') {
+    lista = lista.filter(p => p.status !== 'aprovado'); // recusado, cancelled, etc.
+  }
+  if (busca) {
+    lista = lista.filter(p => [p.itens, p.convidado_nome, p.mensagem, p.pagador_nome, p.pagador_email]
+      .some(campo => (campo||'').toLowerCase().includes(busca)));
+  }
+
+  tPag.innerHTML = lista.length ? lista.map(p=>`<tr>
+      <td>${esc(p.criado_em)}</td><td>${esc(p.itens)}</td><td>${brl(p.valor)}</td>
+      <td class="status-${esc(p.status)}">${esc(p.status)}</td>
+      <td>${esc(p.convidado_nome||'')}</td><td>${esc(p.mensagem||'')}</td>
+      <td>${esc(p.pagador_nome||'')}</td><td>${esc(p.pagador_email||'')}</td></tr>`).join('')
+    : '<tr><td colspan="8" class="vazio">Nenhum pagamento encontrado.</td></tr>';
+}
+document.getElementById('filtro-status').addEventListener('change', renderizarPagamentos);
+document.getElementById('busca-pagamentos').addEventListener('input', renderizarPagamentos);
 
 /* ---------------- excluir confirmação (com caixinha de confirmação) ---------------- */
 const overlayExcluir = document.getElementById('overlay-excluir');
